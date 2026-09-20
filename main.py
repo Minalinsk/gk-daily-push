@@ -194,11 +194,16 @@ def _send(text, is_success=True, tag="消息"):
     return safe_push(text, is_success=is_success)
 
 
-def _schedule_step(all_items, send=True):
+def _schedule_step(all_items, state, send=True):
     """抓公告正文、抽关键时间点，然后推一条「考试日程提醒」。
 
+    **一天只提醒一遍，早上那条（07:00）**，规矩是两条：
+      ① 发过就不再发：state["last_schedule"] 记着上次发的是哪一天（北京时间），
+         同一天再跑（手动触发、cron 抖动重跑）都会跳过；
+      ② 早上的那次负责发（send=True）；晚上的那次（send=False）平时什么都不做，
+         只有在"今天一次都没发出去"时才补一条——早上整个任务挂了的话，
+         晚上补一条总比当天完全没有提醒好。
     这一块独立于"只推新的"逻辑：日历是累积的，今天没有新公告也会照常提醒。
-    晚上那次（PUSH_SCHEDULE=False）只更新日历、不推送，免得一天收两条一样的时间表。
     出错不影响主流程。
     """
     if not config.SCHEDULE_ENABLED:
@@ -210,15 +215,22 @@ def _schedule_step(all_items, send=True):
         if n:
             logging.info("本次新解析了 %d 篇公告的日程", n)
 
-        if not send:
-            logging.info("本次不推日程提醒（只在早上那次推），日历已更新")
+        today = exam_dates.bj_today().isoformat()
+        if state.get("last_schedule") == today:
+            logging.info("今天的日程提醒已经发过了，本次跳过（日历照常更新）")
             return
+        if not send:
+            logging.info("今天还没发过日程提醒，本次补发一条（平时晚上是不发的）")
 
         msg = exam_dates.build_reminder(store)
         if not msg:
             logging.info("日历里还没有写明了时间的考试公告")
             return
-        _send(msg, is_success=True, tag="日程提醒")
+        ok = _send(msg, is_success=True, tag="日程提醒")
+        if ok and not config.DRY_RUN:
+            # 只有真发出去了才记账：发送失败的话，下一轮（晚上那次）会补发
+            state["last_schedule"] = today
+            logging.info("日程提醒已发出，今天不再重复提醒")
     except Exception as exc:
         logging.error("考试日程模块出错（已忽略）：%s", exc)
         logging.error("堆栈：\n%s", traceback.format_exc())
@@ -260,8 +272,8 @@ def main():
         new_items = pick_news(all_items, seen_set)
         logging.info("时政里没推过的 %d 条（看的是 %s）", len(new_items), _news_day_label())
 
-        # 先推日程提醒（公告的时间表），再推时政清单
-        _schedule_step(all_items, send=config.PUSH_SCHEDULE)
+        # 先推日程提醒（公告的时间表，一天只推早上那一条），再推时政清单
+        _schedule_step(all_items, state, send=config.PUSH_SCHEDULE)
 
         # 首次运行只建索引，避免一口气把几百条糊你脸上
         if first_run and not config.FIRST_RUN_PUSH:
