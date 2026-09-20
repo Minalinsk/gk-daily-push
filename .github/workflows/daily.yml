@@ -1,0 +1,60 @@
+name: gk-daily-push
+
+# 每天北京时间 07:00 触发（UTC 前一天 23:00），实际执行时间会随机延迟 0~20 分钟
+on:
+  schedule:
+    - cron: '0 23 * * *'
+  workflow_dispatch:          # 支持手动触发，方便测试
+
+permissions:
+  contents: write             # 需要它才能把去重索引提交回仓库
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  push:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 纯标准库实现，不需要 pip install，省时间也少一个失败点
+      - name: Random Delay (0-20 min)
+        if: github.event_name == 'schedule'
+        run: |
+          DELAY=$((RANDOM % 1201))
+          echo "本次随机延迟 ${DELAY} 秒（约 $((DELAY / 60)) 分 $((DELAY % 60)) 秒）"
+          sleep $DELAY
+
+      - name: Run push script
+        env:
+          PUSH_METHOD: ${{ secrets.PUSH_METHOD }}
+          WEWORK_WEBHOOK: ${{ secrets.WEWORK_WEBHOOK }}
+          WEWORK_MSG_TYPE: ${{ vars.WEWORK_MSG_TYPE }}
+          DRY_RUN: '0'
+        run: python main.py
+
+      # 索引提交回仓库有两个作用：
+      # 1) 记住推过哪些，下次只推新的
+      # 2) 让仓库保持活跃，避免定时任务因 60 天无活动被 GitHub 自动禁用
+      - name: Commit state
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add state/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "索引无变化，跳过提交"
+          else
+            git commit -m "chore: 更新已推送索引 [skip ci]"
+            git push || echo "提交失败（可能是分支保护），不影响任务本身"
+          fi

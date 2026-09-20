@@ -1,0 +1,5 @@
+# 注意：state/seen.json 不能被忽略！
+# 它是"只推新内容"的去重索引，必须提交回仓库。
+__pycache__/
+*.pyc
+_selftest.py
