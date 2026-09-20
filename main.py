@@ -296,7 +296,7 @@ def main():
             return True
 
         if not new_items:
-            save_state(state)  # 刷新 last_run，顺便让仓库保持活跃
+            save_state(state)  # 内容没变的话它不会写盘，也就不会产生提交
             _send(f"**📭 {config.REPORT_TITLE}**\n{_news_day_label()}没有新的时政内容。",
                   is_success=True)
             return True
