@@ -47,6 +47,11 @@ KINDS = [
     ("报名", ("报名时间", "报名截止", "报名日期", "网上报名", "报名")),
 ]
 
+# "算作考试时间"的事件：一篇公告里至少要有其中一个，才值得提醒。
+# 报名/缴费/资格审查这类只是"手续时间"，公告连考试时间都没写出来的话，
+# 提醒过去也是空的（老大 2026-09-20 明确要求：读不到考试时间的公告不用发）。
+EXAM_TIME_KINDS = ("笔试", "面试", "准考证开始", "准考证截止", "准考证打印")
+
 # 切片段：中文公告里一个逗号基本等于一个信息点
 _SPLIT_RE = re.compile(r"[。；;！!\n\r，,、]+")
 
@@ -113,11 +118,15 @@ def _kind_of(frag):
 
 def _assign(kind, dates, frag):
     """把日期落到具体事件上。返回 [(事件名, 日期), ...]。"""
-    first, last = dates[0], dates[-1]
+    first = dates[0]
+    # 区间一律用「前两个日期」，不能用最后一个：片段里常跟着别的子句，
+    # 例如「报名时间：9月18日—9月23日 查询时间：9月24日」，
+    # 取最后一个会把报名截止写成查询时间那天（差一天就可能误事）。
+    second = dates[1] if len(dates) >= 2 else dates[0]
 
     if kind == "报名":
         if len(dates) >= 2:
-            return [("报名开始", first), ("报名截止", last)]
+            return [("报名开始", first), ("报名截止", second)]
         if "截止" in frag or "结束" in frag or "最后一天" in frag:
             return [("报名截止", first)]
         if "起" in frag or "开始" in frag or "开通" in frag:
@@ -127,18 +136,18 @@ def _assign(kind, dates, frag):
         return []
 
     if kind == "缴费":
-        return [("缴费截止", last)]
+        return [("缴费截止", second)]
 
     if kind == "准考证":
         if len(dates) >= 2:
-            return [("准考证开始", first), ("准考证截止", last)]
+            return [("准考证开始", first), ("准考证截止", second)]
         return [("准考证打印", first)]
 
     if kind == "资格审查":
-        return [("资格审查截止", last)]
+        return [("资格审查截止", second)]
 
     if kind == "公示":
-        return [("公示截止", last)]
+        return [("公示截止", second)]
 
     if kind == "笔试":
         return [("笔试", first)]
@@ -324,11 +333,22 @@ def build_reminder(store):
     today = bj_today()
     events = [ev for ev in store.get("events", []) if ev.get("url")]
 
-    ongoing, upcoming = [], []
     by_url = {}
     for ev in events:
         by_url.setdefault(ev["url"], []).append(ev)
 
+    # 读不到考试时间的公告（正文只有报名/缴费，考试时间一个字都没写）
+    # 整条不发——点进去也是空的。开关见 config.REQUIRE_EXAM_TIME。
+    if config.REQUIRE_EXAM_TIME:
+        ok = {u for u, evs in by_url.items()
+              if any(e.get("kind") in EXAM_TIME_KINDS for e in evs)}
+        skipped = len(by_url) - len(ok)
+        if skipped:
+            logging.info("有 %d 篇公告读不到考试时间，本次不提醒", skipped)
+        by_url = {u: evs for u, evs in by_url.items() if u in ok}
+    events = [ev for evs in by_url.values() for ev in evs]
+
+    ongoing, upcoming = [], []
     for url, evs in by_url.items():
         start = next((e for e in evs if e["kind"] == "报名开始"), None)
         end = next((e for e in evs if e["kind"] == "报名截止"), None)
