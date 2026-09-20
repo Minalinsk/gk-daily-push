@@ -63,7 +63,37 @@
   "https://www.offcn.com/sydw/2026/0901/1177019.html": "2026-09-20",
   "https://www.offcn.com/sydw/2026/0831/1176756.html": "2026-09-20",
   "https://www.offcn.com/sydw/2026/0831/1176632.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0831/2872016.html": "2026-09-20"
+  "https://sydw.huatu.com/2026/0831/2872016.html": "2026-09-20",
+  "https://sydw.huatu.com/2026/0920/2873560.html": "2026-09-20",
+  "https://sydw.huatu.com/2026/0828/2871977.html": "2026-09-20",
+  "https://sydw.huatu.com/2026/0828/2871972.html": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468599341600768": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468483387709440": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468619268477952": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468597919207424": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468598753873920": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468192033264640": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468344327655424": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468617116536833": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468873730348032": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468531392041984": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/469120409950208": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468571623283712": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468781267177472": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/469135761888256": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468917161581568": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/466123850534913": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/466846404858880": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/466891911221248": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/466745744970752": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/461480312456192": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/466281732786176": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/466222826672128": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/466220635408384": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468575240606720": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468372044405760": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/468345615306752": "2026-09-20",
+  "https://www.fenbi.com/page/exam-information-detail/467851588424704": "2026-09-20"
  },
  "events": [
   {
@@ -94,12 +124,39 @@
    "added": "2026-09-20"
   },
   {
+   "kind": "报名开始",
+   "date": "2026-09-11",
+   "raw": "招聘办法 1.报名时间： 自公告发布之日起至2026年9月11日17：00止",
+   "url": "https://www.fenbi.com/page/exam-information-detail/468619268477952",
+   "title": "上海博物馆公开招聘公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "报名开始",
+   "date": "2026-09-11",
+   "raw": "3.报名时间：2026年9月11日0:00至9月23日17:00",
+   "url": "https://www.fenbi.com/page/exam-information-detail/468917161581568",
+   "title": "深圳中学高中园2026年9月面向社会公开选聘教师公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-09-20"
+  },
+  {
    "kind": "报名截止",
    "date": "2026-09-11",
    "raw": "截止2026年9月11日报名结束",
    "url": "https://www.offcn.com/sydw/2026/0914/1178626.html",
    "title": "2026河北衡水市城市管理综合行政执法局关于核减公开选聘岗位计划的公告",
    "source": "中公·全国事业单位",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "报名截止",
+   "date": "2026-09-11",
+   "raw": "上海博物馆公开招聘公告-上海-上海市-事业单位-2026-行政事业编-有编制-上海博物馆-粉笔资讯 首页 课程 题库 关于粉笔 下载客户端 投资者关系 登录 上",
+   "url": "https://www.fenbi.com/page/exam-information-detail/468619268477952",
+   "title": "上海博物馆公开招聘公告",
+   "source": "粉笔·招考公告",
    "added": "2026-09-20"
   },
   {
@@ -118,6 +175,15 @@
    "url": "https://sydw.huatu.com/2026/0909/2872622.html",
    "title": "2027内蒙古事业单位招聘工作人员8825人公告",
    "source": "华图·全国事业单位",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "笔试",
+   "date": "2026-09-12",
+   "raw": "（二）笔试时间及考点设置 笔试时间为9月12日",
+   "url": "https://www.fenbi.com/page/exam-information-detail/468345615306752",
+   "title": "报名结束2026年西藏籍少数民族高校毕业生专项招录公务员公告",
+   "source": "粉笔·招考公告",
    "added": "2026-09-20"
   },
   {
@@ -220,6 +286,15 @@
    "added": "2026-09-20"
   },
   {
+   "kind": "报名开始",
+   "date": "2026-09-17",
+   "raw": "人 查看职位表 报名时间 2026/9/17 -2026/9/24 00:00 保定市宏利佳高",
+   "url": "https://www.fenbi.com/page/exam-information-detail/469135761888256",
+   "title": "保定市宏利佳高级中学招聘简章",
+   "source": "粉笔·招考公告",
+   "added": "2026-09-20"
+  },
+  {
    "kind": "报名截止",
    "date": "2026-09-17",
    "raw": "第二阶段：其他岗位的报名时间为2026年9月15日9：00至9月17日17:00",
@@ -262,6 +337,15 @@
    "url": "https://www.offcn.com/sydw/2026/0920/1179736.html",
    "title": "招聘3人！工资8000+|海北州应急管理局公开招聘煤矿专职技术检查员公告",
    "source": "中公·全国事业单位",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "报名截止",
+   "date": "2026-09-18",
+   "raw": "（二）报名 1.线上报名时间：9月7日至9月18日17：00截止",
+   "url": "https://www.fenbi.com/page/exam-information-detail/468873730348032",
+   "title": "贵阳贵安教育系统公费教育师范生招聘公告",
+   "source": "粉笔·招考公告",
    "added": "2026-09-20"
   },
   {
@@ -364,6 +448,15 @@
    "added": "2026-09-20"
   },
   {
+   "kind": "报名截止",
+   "date": "2026-09-20",
+   "raw": "报名方式及时间 1.报名时间：2026年8月20日—2026年9月20日 2.报名登录系统：https://aks.xnrczpw.com/nindex/?ec",
+   "url": "https://www.fenbi.com/page/exam-information-detail/468531392041984",
+   "title": "阿克苏人才发展集团有限责任公司招聘合同制专任教师公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-09-20"
+  },
+  {
    "kind": "报名开始",
    "date": "2026-09-21",
    "raw": "报名时间为2026年9月21日9时起至2026年10月8日12时止",
@@ -388,6 +481,15 @@
    "url": "https://www.offcn.com/sydw/2026/0920/1179724.html",
    "title": "2026年度市场监管总局直属事业单位第二批公开招聘32名公告",
    "source": "中公·全国事业单位",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "报名开始",
+   "date": "2026-09-21",
+   "raw": "引进程序 (一)网上报名 应聘人员于2026年9月21日—10月20日登录武威市人民政府网(https://www.gswuwei.gov.cn)查询本公告及《",
+   "url": "https://sydw.huatu.com/2026/0920/2873560.html",
+   "title": "2026年甘肃省武威市第二批招聘高层次和急需紧缺人才224人公告",
+   "source": "华图·全国事业单位",
    "added": "2026-09-20"
   },
   {
@@ -418,12 +520,30 @@
    "added": "2026-09-20"
   },
   {
+   "kind": "报名截止",
+   "date": "2026-09-23",
+   "raw": "3.报名时间：2026年9月11日0:00至9月23日17:00",
+   "url": "https://www.fenbi.com/page/exam-information-detail/468917161581568",
+   "title": "深圳中学高中园2026年9月面向社会公开选聘教师公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-09-20"
+  },
+  {
    "kind": "资格审查截止",
    "date": "2026-09-23",
    "raw": "报考人员对资格初审异议的陈述申辩时间：2026年9月17日9：00 — 9月23日16：00",
    "url": "https://www.offcn.com/sydw/2026/0914/1178815.html",
    "title": "2026泰州医药高新区（高港区）事业单位公开招聘10人公告",
    "source": "中公·全国事业单位",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "准考证打印",
+   "date": "2026-09-24",
+   "raw": "面试 准考证打印：9月24日18:00后在报名系统进行准考证打印",
+   "url": "https://www.fenbi.com/page/exam-information-detail/468917161581568",
+   "title": "深圳中学高中园2026年9月面向社会公开选聘教师公告",
+   "source": "粉笔·招考公告",
    "added": "2026-09-20"
   },
   {
@@ -481,6 +601,15 @@
    "added": "2026-09-20"
   },
   {
+   "kind": "报名截止",
+   "date": "2026-09-24",
+   "raw": "人 查看职位表 报名时间 2026/9/17 -2026/9/24 00:00 保定市宏利佳高",
+   "url": "https://www.fenbi.com/page/exam-information-detail/469135761888256",
+   "title": "保定市宏利佳高级中学招聘简章",
+   "source": "粉笔·招考公告",
+   "added": "2026-09-20"
+  },
+  {
    "kind": "缴费截止",
    "date": "2026-09-24",
    "raw": "(三)网上缴费 缴费时间：2026年9月18日11:00—9月24日16:00 通过资格初审的人员",
@@ -518,11 +647,29 @@
   },
   {
    "kind": "资格审查截止",
+   "date": "2026-09-24",
+   "raw": "网上资格初审结果将于9月24日12:00前通过短信的方式告知应聘人员",
+   "url": "https://www.fenbi.com/page/exam-information-detail/468917161581568",
+   "title": "深圳中学高中园2026年9月面向社会公开选聘教师公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "资格审查截止",
    "date": "2026-09-25",
    "raw": "资格审查时间：2026年9月20日9:30–9月25日9：30",
    "url": "https://sydw.huatu.com/2026/0918/2873422.html",
    "title": "2026年长沙海关事业单位公开招聘工作人员10人简章",
    "source": "华图·全国事业单位",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "报名截止",
+   "date": "2026-09-27",
+   "raw": "位 查看职位表 报名时间 2026/08/26-2026/09/27 根据我区教育教学工作需要",
+   "url": "https://www.fenbi.com/page/exam-information-detail/468571623283712",
+   "title": "2026年肇庆市高要区公办中小学公开招聘教育服务人员公告",
+   "source": "粉笔·招考公告",
    "added": "2026-09-20"
   },
   {
@@ -568,6 +715,15 @@
    "url": "https://sydw.huatu.com/2026/0917/2873259.html",
    "title": "2026年湖南常德市桃源县县直事业单位公开选调工作人员31人公告",
    "source": "华图·全国事业单位",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "资格审查截止",
+   "date": "2026-10-05",
+   "raw": "资格复审时间为10月5日下午13:00-17:00",
+   "url": "https://www.fenbi.com/page/exam-information-detail/468917161581568",
+   "title": "深圳中学高中园2026年9月面向社会公开选聘教师公告",
+   "source": "粉笔·招考公告",
    "added": "2026-09-20"
   },
   {
@@ -751,6 +907,24 @@
    "added": "2026-09-20"
   },
   {
+   "kind": "报名截止",
+   "date": "2026-10-20",
+   "raw": "引进程序 (一)网上报名 应聘人员于2026年9月21日—10月20日登录武威市人民政府网(https://www.gswuwei.gov.cn)查询本公告及《",
+   "url": "https://sydw.huatu.com/2026/0920/2873560.html",
+   "title": "2026年甘肃省武威市第二批招聘高层次和急需紧缺人才224人公告",
+   "source": "华图·全国事业单位",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "报名截止",
+   "date": "2026-10-24",
+   "raw": "报考者可于2025年10月15日8:00至10月24日18:00期间登录专题网站进行报名并提交报考申请",
+   "url": "https://www.fenbi.com/page/exam-information-detail/461480312456192",
+   "title": "报名结束中央机关及其直属机构2026年度考试录用公务员公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-09-20"
+  },
+  {
    "kind": "笔试",
    "date": "2026-10-24",
    "raw": "决定将2026年甘南州事业单位公开招聘工作人员笔试时间调整为2026年10月24日至25日",
@@ -796,6 +970,15 @@
    "added": "2026-09-20"
   },
   {
+   "kind": "资格审查截止",
+   "date": "2026-10-26",
+   "raw": "在粉笔 2.查询资格审查结果。招录机关于2025年10月15日8:00至10月26日18:00",
+   "url": "https://www.fenbi.com/page/exam-information-detail/461480312456192",
+   "title": "报名结束中央机关及其直属机构2026年度考试录用公务员公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-09-20"
+  },
+  {
    "kind": "准考证开始",
    "date": "2026-10-28",
    "raw": "4.网上打印准考证 通过资格初审和缴费确认的报考人员须在2026年10月28日9：00-10月30日24：00期间登录报名网站下载并打印准考证（请报考人员妥善保",
@@ -814,12 +997,57 @@
    "added": "2026-09-20"
   },
   {
+   "kind": "报名截止",
+   "date": "2026-10-31",
+   "raw": "报名时间为2026年8月25日9：00－10月31日16：00",
+   "url": "https://www.fenbi.com/page/exam-information-detail/468617116536833",
+   "title": "2026年度青岛市卫生健康委员会直属事业单位公开招聘高级人才",
+   "source": "粉笔·招考公告",
+   "added": "2026-09-20"
+  },
+  {
    "kind": "笔试",
    "date": "2026-10-31",
    "raw": "2.笔试时间和地点 笔试时间：2026年10月31日9：00－11：30",
    "url": "https://www.offcn.com/sydw/2026/0914/1178815.html",
    "title": "2026泰州医药高新区（高港区）事业单位公开招聘10人公告",
    "source": "中公·全国事业单位",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "报名截止",
+   "date": "2026-11-06",
+   "raw": "可于2025年11月1日0:00至11月6日24:00登录专题网站进行网上报名确认并缴费",
+   "url": "https://www.fenbi.com/page/exam-information-detail/461480312456192",
+   "title": "报名结束中央机关及其直属机构2026年度考试录用公务员公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "资格审查截止",
+   "date": "2026-11-06",
+   "raw": " 尽在粉笔 通过资格审查的报考者，可于2025年11月1日0:00至11月6日24:00登录专",
+   "url": "https://www.fenbi.com/page/exam-information-detail/461480312456192",
+   "title": "报名结束中央机关及其直属机构2026年度考试录用公务员公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "准考证截止",
+   "date": "2026-11-30",
+   "raw": "请于2025年11月24日0:00至11月30日15:00期间登录专题网站打印准考证",
+   "url": "https://www.fenbi.com/page/exam-information-detail/461480312456192",
+   "title": "报名结束中央机关及其直属机构2026年度考试录用公务员公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-09-20"
+  },
+  {
+   "kind": "报名截止",
+   "date": "2026-11-30",
+   "raw": "掌握 尽在粉笔 报名确认成功的报考者，请于2025年11月24日0:00至11月30日15",
+   "url": "https://www.fenbi.com/page/exam-information-detail/461480312456192",
+   "title": "报名结束中央机关及其直属机构2026年度考试录用公务员公告",
+   "source": "粉笔·招考公告",
    "added": "2026-09-20"
   }
  ]
