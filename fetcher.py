@@ -227,6 +227,8 @@ def fetch_source(src):
 
     for it in items:
         it["source"] = name
+        # announce=招考公告源 / news=时政源（决定要不要过"有没有写报名/考试时间"的检查）
+        it["kind"] = src.get("kind", "news")
     logging.info("源【%s】解析到 %d 条（页面 %.0f KB）", name, len(items), size / 1024)
     return items
 

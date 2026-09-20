@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 """每日时政 + 公考公告推送 —— 主程序
 
-流程：抓取 → 去重（只留没推过的）→ 组装消息 → 企业微信推送 → 更新索引
+两条消息、两套逻辑：
+  ① 考试日程提醒 —— 公告源里的"报名/考试时间"，做成一张时间表（公告维度，累积着用）
+  ② 每日资讯清单 —— 时政源里前一天的热门时政
+流程：抓取 → 去重 → 组装消息 → 企业微信推送 → 更新索引
 任何环节出错都会推一条失败通知，不会静默死掉。
 """
 
+import datetime
 import logging
 import re
 import time
@@ -12,7 +16,7 @@ import traceback
 
 import config
 import exam_dates
-from fetcher import fetch_all
+from fetcher import fetch_all, url_date
 from log_utils import setup_logging, tail_logs
 from push import safe_push
 from state import load_state, save_state
@@ -46,14 +50,17 @@ def _keep(title):
     return True
 
 
-def eligible_by_source(all_items, seen_set):
+def eligible_by_source(all_items, seen_set, kind=None):
     """过滤 + 去重，把候选按源分组。返回 {源: [条目...]}，保持页面出现顺序。
 
-    只做筛选不做挑选，所以拿到的是一份"完整候选池"——首次运行建索引时要用它。
+    kind 用来只取某一类源："news"=时政源（进每日清单），
+    "announce"=公告源（走日程提醒那条线，不进清单）。
     """
     by_source, used_url, used_title = {}, set(), set()
 
     for it in all_items:
+        if kind and it.get("kind") != kind:
+            continue
         title, url = it["title"], it["url"]
         if url in seen_set or url in used_url:
             continue
@@ -72,21 +79,39 @@ def eligible_by_source(all_items, seen_set):
     return by_source
 
 
-def pick_new(all_items, seen_set):
-    """从候选池里挑出"这次要推的新条目"。
+def _pub_date(it):
+    """条目 URL 里的发布日期，读不出返回 None。"""
+    d = url_date(it["url"])
+    if not d:
+        return None
+    try:
+        return datetime.date(d.tm_year, d.tm_mon, d.tm_mday)
+    except ValueError:
+        return None
 
-    关键点：用「按源轮转」的方式挑选，而不是从头顺着拿。
-    否则时政源条数多，会把公考公告全挤掉——而公告恰恰是最不该漏的。
+
+def pick_news(all_items, seen_set):
+    """每日资讯清单：只挑时政源里「前一天」发布的条目。
+
+    某个源前一晚没更新（一条昨天的都挑不出来）时，退而取它最新的几条，
+    免得整个源缺席。**公告不在这条清单里**——公告统一走日程提醒。
     """
-    by_source = eligible_by_source(all_items, seen_set)
+    by_source = eligible_by_source(all_items, seen_set, kind="news")
+    yesterday = exam_dates.bj_today() - datetime.timedelta(days=1)
 
-    # 轮转挑选：每个源先各拿 1 条，再各拿第 2 条，直到到上限
+    queues = []
+    for name, queue in by_source.items():
+        fresh = [it for it in queue if _pub_date(it) == yesterday]
+        queues.append(fresh[: config.MAX_PER_SOURCE] if fresh
+                      else queue[: config.NEWS_FALLBACK_MAX])
+
+    # 按源轮转地拿，避免某个源条数多就把别的源挤掉
     final, idx = [], 0
     while len(final) < config.MAX_TOTAL:
         added = False
-        for queue in by_source.values():
-            if idx < len(queue) and idx < config.MAX_PER_SOURCE:
-                final.append(queue[idx])
+        for q in queues:
+            if idx < len(q):
+                final.append(q[idx])
                 added = True
                 if len(final) >= config.MAX_TOTAL:
                     break
@@ -139,10 +164,10 @@ def _send(text, is_success=True, tag="消息"):
 
 
 def _schedule_step(all_items):
-    """抓公告正文、抽关键时间点，然后推一条日程提醒。
+    """抓公告正文、抽关键时间点，然后推一条「考试日程提醒」。
 
-    这一块独立于"只推新的"逻辑：日历是累积的，就算今天没有新公告，
-    只要临近报名截止或笔试，也会提醒。出错不影响主流程。
+    这一块独立于"只推新的"逻辑：日历是累积的，今天没有新公告也会照常提醒。
+    出错不影响主流程。
     """
     if not config.SCHEDULE_ENABLED:
         return
@@ -155,7 +180,7 @@ def _schedule_step(all_items):
 
         msg = exam_dates.build_reminder(store)
         if not msg:
-            logging.info("近期没有需要提醒的考试日程")
+            logging.info("日历里还没有写明了时间的考试公告")
             return
         _send(msg, is_success=True, tag="日程提醒")
     except Exception as exc:
@@ -196,18 +221,19 @@ def main():
                 "所有源都没抓到内容，可能是网络被拦或站点改版，请检查源配置。"
             )
 
-        new_items = pick_new(all_items, seen_set)
-        logging.info("其中没推过的 %d 条", len(new_items))
+        new_items = pick_news(all_items, seen_set)
+        logging.info("时政里没推过的 %d 条", len(new_items))
 
-        # 先推日程提醒（最有时效性），再推今天的资讯清单
+        # 先推日程提醒（公告的时间表），再推时政清单
         _schedule_step(all_items)
 
         # 首次运行只建索引，避免一口气把几百条糊你脸上
         if first_run and not config.FIRST_RUN_PUSH:
-            # 注意：这里记的是"全部候选"，不是 pick_new 挑出来的那几条。
-            # 公告类源一页就有几百条候选，如果只记 24 条，剩下的会在之后
-            # 十来天里被当成"新内容"陆续推出来，等于给你补一星期旧闻。
-            all_new = [it for queue in eligible_by_source(all_items, seen_set).values()
+            # 注意：这里记的是"全部时政候选"，不是挑出来的那几条。
+            # 如果只记 24 条，剩下的会在之后十来天里被当成"新内容"
+            # 陆续推出来，等于给你补一星期旧闻。
+            # （公告不进这个索引：它靠日历的 parsed 表去重，见 exam_dates.py）
+            all_new = [it for queue in eligible_by_source(all_items, seen_set, kind="news").values()
                        for it in queue]
             if config.DRY_RUN:
                 logging.info("（DRY_RUN）首次运行，本应建立索引 %d 条，已跳过", len(all_new))
@@ -216,18 +242,18 @@ def main():
                 save_state(state)
                 _send(
                     f"**✅ {config.REPORT_TITLE} 已就绪**\n"
-                    f"首次运行已建立索引（{len(all_new)} 条），从明天起只推新增内容。",
+                    f"首次运行已建立索引（{len(all_new)} 条时政），从明天起只推新增内容。",
                     is_success=True,
                 )
             return True
 
         if not new_items:
             save_state(state)  # 刷新 last_run，顺便让仓库保持活跃
-            _send(f"**📭 {config.REPORT_TITLE}**\n今日没有新增内容。", is_success=True)
+            _send(f"**📭 {config.REPORT_TITLE}**\n前一天没有新的时政内容。", is_success=True)
             return True
 
         msg = build_message(new_items)
-        ok = _send(msg, is_success=True, tag="资讯清单")
+        ok = _send(msg, is_success=True, tag="时政清单")
 
         if ok and not config.DRY_RUN:
             state["seen"] = seen + [it["url"] for it in new_items]

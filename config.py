@@ -25,6 +25,9 @@ r"""
 
 【一条源支持的可选字段】
   pattern       —— 必填，筛文章链接的正则
+  kind          —— "announce"=招考公告源 / "news"=时政源。
+                   公告源的东西进「日程提醒」（抽报名/考试时间），
+                   时政源的东西进「每日资讯清单」
   title_pattern —— 可选，标题不在 <a> 标签里时（比如粉笔），用它从链接后面 500 字里捞标题
   include       —— 可选，本源专用白名单，标题不含这些词就不推
   exclude       —— 可选，本源专用黑名单
@@ -62,6 +65,7 @@ SOURCES = [
     {
         # 山西省人事考试网的公务员栏目，最权威的山西省考来源
         "name": "山西省考·公务员",
+        "kind": "announce",   # announce=招考公告源（要过时间检查）/ news=时政源
         "url": "https://rst.shanxi.gov.cn/rsks/gwyks/",
         "pattern": r"t\d{8}_\d+\.shtml",
         "max": 30,
@@ -69,6 +73,7 @@ SOURCES = [
     },
     {
         "name": "山西省考·事业单位",
+        "kind": "announce",   # announce=招考公告源（要过时间检查）/ news=时政源
         "url": "https://rst.shanxi.gov.cn/rsks/sydwks/",
         "pattern": r"t\d{8}_\d+\.shtml",
         "max": 30,
@@ -81,6 +86,7 @@ SOURCES = [
         #   max 必须开大：页面按省份分段，山西排在很后面，取少了翻不到；
         #   真正压量的是 max_age_days（45 天实测留 64 条）
         "name": "华图·全国公务员",
+        "kind": "announce",   # announce=招考公告源（要过时间检查）/ news=时政源
         "url": "https://www.huatu.com/gwy/zhaokao/",
         "pattern": r"huatu\.com/20\d{2}/\d{4}/\d+\.html",
         "exclude": STUDY_NOISE,
@@ -90,6 +96,7 @@ SOURCES = [
     {
         # ★ 华图事业单位频道，全国事业单位招考公告（实测 283 条，45 天内 103 条）
         "name": "华图·全国事业单位",
+        "kind": "announce",   # announce=招考公告源（要过时间检查）/ news=时政源
         "url": "https://sydw.huatu.com/",
         "pattern": r"sydw\.huatu\.com/20\d{2}/\d{4}/\d+\.html",
         "exclude": STUDY_NOISE,
@@ -100,6 +107,7 @@ SOURCES = [
         # ★ 中公事业单位频道，按日期倒序排（0919 / 0918 / 0917…），
         #   天然适合"只推新的"，实测每天都有"全国事业单位招聘公告汇总"
         "name": "中公·全国事业单位",
+        "kind": "announce",   # announce=招考公告源（要过时间检查）/ news=时政源
         "url": "https://www.offcn.com/sydw/",
         "pattern": r"offcn\.com/sydw/20\d{2}/\d{4}/\d+\.html",
         "exclude": STUDY_NOISE,
@@ -109,6 +117,7 @@ SOURCES = [
     {
         # 山西华图的公务员频道，按日期倒序、专盯山西，作为全国页的兜底
         "name": "华图·山西公务员",
+        "kind": "announce",   # announce=招考公告源（要过时间检查）/ news=时政源
         "url": "https://sx.huatu.com/gwy/",
         "pattern": r"huatu\.com/20\d{2}/\d{4}/\d+\.html",
         "exclude": STUDY_NOISE,
@@ -122,6 +131,7 @@ SOURCES = [
         # 原来是只留山西（include: ["山西"]），既然要全国就去掉了；
         # 想收回来就在这条里加一行： "include": ["山西"],
         "name": "粉笔·招考公告",
+        "kind": "announce",   # announce=招考公告源（要过时间检查）/ news=时政源
         "url": "https://www.fenbi.com/",
         "pattern": r"exam-information-detail/\d+",
         "title_pattern": r'class="[^"]*article-title[^"]*">([^<]{6,80})<',
@@ -134,12 +144,14 @@ SOURCES = [
 
     {
         "name": "新华网·时政",
+        "kind": "news",   # announce=招考公告源（要过时间检查）/ news=时政源
         "url": "http://www.news.cn/politics/",
         "pattern": r"news\.cn/politics/\d{8}/\w+/c\.html",
         "max": 30,
     },
     {
         "name": "新华网·法治",
+        "kind": "news",   # announce=招考公告源（要过时间检查）/ news=时政源
         "url": "http://www.news.cn/legal/",
         "pattern": r"news\.cn/legal/\d{8}/\w+/c\.html",
         "max": 20,
@@ -147,18 +159,21 @@ SOURCES = [
     },
     {
         "name": "央视网·要闻",
+        "kind": "news",   # announce=招考公告源（要过时间检查）/ news=时政源
         "url": "https://news.cctv.com/",
         "pattern": r"news\.cctv\.com/20\d{2}/\d{2}/\d{2}/ARTI\w+\.shtml",
         "max": 24,
     },
     {
         "name": "人民网·观点",
+        "kind": "news",   # announce=招考公告源（要过时间检查）/ news=时政源
         "url": "http://opinion.people.com.cn/",
         "pattern": r"/n1/\d{4}/\d{4}/c\d+-\d+\.html",
         "max": 24,
     },
     {
         "name": "中国新闻网·要闻",
+        "kind": "news",   # announce=招考公告源（要过时间检查）/ news=时政源
         "url": "https://www.chinanews.com.cn/",
         "pattern": r"chinanews\.com\.cn/\w+/20\d{2}/\d{2}-\d{2}/\d+\.shtml",
         "max": 24,
@@ -182,9 +197,15 @@ MIN_TITLE_LEN = 8
 MAX_AGE_DAYS = 3
 
 # ============================== 输出控制 ==============================
-MAX_TOTAL = 24          # 整条消息最多几条（防止超出企业微信长度限制）
-MAX_PER_SOURCE = 12     # 每个源最多取几条
+# 每日资讯清单 = **只放时政**（前一天的热门时政，公告不在这里）。
+# 考试公告统一走"日程提醒"那条线，见下面的 SCHEDULE_ENABLED。
+MAX_TOTAL = 24          # 清单最多几条（防止超出企业微信长度限制）
+MAX_PER_SOURCE = 12     # 每个时政源最多取几条
 TITLE_MAX = 38          # 标题超过多少字截断
+
+# 时政只取「前一天」发布的（按 URL 里的日期判断）。
+# 某个源前一晚没更新时，退而取它最新的几条，免得整个源缺席。
+NEWS_FALLBACK_MAX = 3   # 兜底时每个源最多取几条
 
 # 首次运行（本地还没索引）时：True = 照常推送，可能一次推一大串
 #                          False = 只建索引不推送，避免被刷屏
@@ -195,13 +216,16 @@ STATE_FILE = "state/seen.json"   # 记录已推送过的链接，靠它实现"�
 STATE_MAX = 3000                 # 索引最多保留多少条（先进先出）
 
 # ============================== 考试日程提醒 ==============================
-# 公告正文里的「报名时间 / 准考证打印 / 笔试时间 / 面试时间」会被抽出来，
-# 存成日历（state/exams.json），到点前自动推一条提醒。
-# 嫌吵就把 SCHEDULE_ENABLED 改成 False。
+# 公告源（kind="announce"）里**只要写明了报名时间或考试时间**的公告，
+# 都会进这条提醒（公告维度，不是"只看未来 3 天"）：
+#   ① 报名进行中   ② 最近几天要动的事   ③ 其它已经把时间定下来了的公告
+# 时间点存在日历（state/exams.json）里，累积着用。嫌吵就把 SCHEDULE_ENABLED 改成 False。
 SCHEDULE_ENABLED = True
 
-# 每轮最多抓几篇公告正文来解析时间点（正文页常有 100~250KB，别贪多）
-DETAIL_FETCH = 12
+# 每轮最多抓几篇公告正文来解析时间点。
+# 正文页常有 100~250KB，但这个值不能太小——只有抓过正文的公告才进得了提醒，
+# 已经解析过的会走缓存，所以日常只是把"新公告"补齐。
+DETAIL_FETCH = 40
 
 # 只对标题带这些词的公告去抓正文（公示、名单、备考文不用抓）
 DETAIL_HINTS = ["公告", "简章", "招录", "招聘", "考试录用", "遴选", "选调"]
@@ -215,15 +239,13 @@ DETAIL_MAX_AGE_DAYS = 25
 # 提前几天开始提醒（报名截止 / 准考证打印 / 笔试 / 面试）
 REMIND_DAYS = 3
 
-# 只提醒"能读到考试时间"的公告。
-# 正文里读不到考试时间（笔试 / 面试 / 准考证，一个字都没有）的公告，
-# 日程提醒里整条不发——这种公告点进去也没用，白占地方。
-# 想让"只写了报名、还没公布考试时间"的公告也照常提醒，改成 False。
-REQUIRE_EXAM_TIME = True
-
 # 一条提醒里最多列几条（超出的折叠成"另有 N 条"）
-REMIND_ONGOING_MAX = 6           # 「报名进行中」最多几条
+REMIND_ONGOING_MAX = 8           # 「报名进行中」最多几条
 REMIND_UPCOMING_MAX = 10         # 「最近 N 天」最多几条
+REMIND_OTHER_MAX = 20            # 「其它已定时间的公告」最多几条
+
+# 一条消息正文的字节预算（企业微信 markdown 上限 4096 字节，留点余量）
+MSG_BUDGET = 3400
 
 # 「报名进行中」只列这些天内截止的（太远的先不占地方）
 ONGOING_WINDOW_DAYS = 30
@@ -250,8 +272,9 @@ PUSH_METHOD = os.getenv("PUSH_METHOD") or ""            # 填 wework 走企业�
 WEWORK_WEBHOOK = os.getenv("WEWORK_WEBHOOK") or ""
 WEWORK_MSG_TYPE = os.getenv("WEWORK_MSG_TYPE") or "markdown"   # markdown / text
 
-# 消息标题
-REPORT_TITLE = "每日时政 + 公考公告"
+# 消息标题（这条是"每日资讯清单"用的；公告那条的标题在 exam_dates.py 里写死为
+# 「⏰ 考试日程提醒」）
+REPORT_TITLE = "每日时政"
 
 # 调试用：置 1 则只打印不真发
 DRY_RUN = os.getenv("DRY_RUN", "0") == "1"
