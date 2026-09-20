@@ -126,6 +126,18 @@ def build_message(items):
     return "\n".join(lines)
 
 
+def _send(text, is_success=True, tag="消息"):
+    """统一的推送出口：DRY_RUN 时只写日志，不真发。
+
+    注意 DRY_RUN 下调用方也不能写索引——否则"预览"会把内容标记成已推送，
+    等真正运行时就什么都推不出去了。
+    """
+    if config.DRY_RUN:
+        logging.info("（DRY_RUN）%s如下，未发送：\n%s", tag, text)
+        return True
+    return safe_push(text, is_success=is_success)
+
+
 def _schedule_step(all_items):
     """抓公告正文、抽关键时间点，然后推一条日程提醒。
 
@@ -145,10 +157,7 @@ def _schedule_step(all_items):
         if not msg:
             logging.info("近期没有需要提醒的考试日程")
             return
-        if config.DRY_RUN:
-            logging.info("（DRY_RUN）日程提醒如下：\n%s", msg)
-        else:
-            safe_push(msg, is_success=True)
+        _send(msg, is_success=True, tag="日程提醒")
     except Exception as exc:
         logging.error("考试日程模块出错（已忽略）：%s", exc)
         logging.error("堆栈：\n%s", traceback.format_exc())
@@ -200,30 +209,31 @@ def main():
             # 十来天里被当成"新内容"陆续推出来，等于给你补一星期旧闻。
             all_new = [it for queue in eligible_by_source(all_items, seen_set).values()
                        for it in queue]
-            state["seen"] = seen + [it["url"] for it in all_new]
-            save_state(state)
-            safe_push(
-                f"**✅ {config.REPORT_TITLE} 已就绪**\n"
-                f"首次运行已建立索引（{len(all_new)} 条），从明天起只推新增内容。",
-                is_success=True,
-            )
+            if config.DRY_RUN:
+                logging.info("（DRY_RUN）首次运行，本应建立索引 %d 条，已跳过", len(all_new))
+            else:
+                state["seen"] = seen + [it["url"] for it in all_new]
+                save_state(state)
+                _send(
+                    f"**✅ {config.REPORT_TITLE} 已就绪**\n"
+                    f"首次运行已建立索引（{len(all_new)} 条），从明天起只推新增内容。",
+                    is_success=True,
+                )
             return True
 
         if not new_items:
             save_state(state)  # 刷新 last_run，顺便让仓库保持活跃
-            safe_push(f"**📭 {config.REPORT_TITLE}**\n今日没有新增内容。", is_success=True)
+            _send(f"**📭 {config.REPORT_TITLE}**\n今日没有新增内容。", is_success=True)
             return True
 
         msg = build_message(new_items)
-        if config.DRY_RUN:
-            logging.info("DRY_RUN 模式，只打印不发送：\n%s", msg)
-            ok = True
-        else:
-            ok = safe_push(msg, is_success=True)
+        ok = _send(msg, is_success=True, tag="资讯清单")
 
-        if ok:
+        if ok and not config.DRY_RUN:
             state["seen"] = seen + [it["url"] for it in new_items]
             logging.info("已记录 %d 条新链接进索引", len(new_items))
+        elif config.DRY_RUN:
+            logging.info("DRY_RUN：这 %d 条不记入索引，下次仍会推出", len(new_items))
         else:
             # 推送失败就不记索引，下次还会重试，不会丢内容
             logging.warning("推送未成功，本次条目不记入索引，下次会重推。")
