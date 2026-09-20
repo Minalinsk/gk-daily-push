@@ -60,9 +60,31 @@ jobs:
           PUSH_SCHEDULE: ${{ github.event.schedule == '0 11 * * *' && '0' || '1' }}
         run: python main.py
 
-      # 索引提交回仓库有两个作用：
+      # ---- 抗「60 天无提交 → 定时任务被静默禁用」 ----
+      # GitHub 的规矩：仓库连续 60 天没有新提交，就会把定时任务全部禁用，
+      # 而且不报错、不提示，只是从此不再触发。
+      # 这里每轮都改一次心跳文件，保证仓库永远在收提交：
+      #   · if: always() —— 任务成功、失败、甚至脚本崩了，都会写
+      #   · run_number 每轮递增，永远和上一次不一样，git 必定有 diff
+      # 心跳文件本身没有别的用处，就是"证明我来过"。
+      - name: Heartbeat（每轮必写，保证有东西可提交）
+        if: always()
+        run: |
+          mkdir -p state
+          cat > state/heartbeat.json <<EOF
+          {
+            "last_run_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "last_run_bj": "$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S')",
+            "run_number": ${{ github.run_number }},
+            "event": "${{ github.event_name }}"
+          }
+          EOF
+          cat state/heartbeat.json
+
+      # 索引提交回仓库有三个作用：
       # 1) 记住推过哪些，下次只推新的
-      # 2) 让仓库保持活跃，避免定时任务因 60 天无活动被 GitHub 自动禁用
+      # 2) 存下考试日历
+      # 3) 让仓库保持活跃（配合上面的心跳），避免定时任务被自动禁用
       - name: Commit state
         if: always()
         run: |
@@ -70,8 +92,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add state/ 2>/dev/null || true
           if git diff --cached --quiet; then
-            echo "索引无变化，跳过提交"
+            echo "没有需要提交的变化"
           else
-            git commit -m "chore: 更新已推送索引 [skip ci]"
+            git commit -m "chore: 更新索引与心跳 [skip ci]"
             git push || echo "提交失败（可能是分支保护），不影响任务本身"
           fi

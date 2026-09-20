@@ -1,0 +1,42 @@
+name: keepalive
+
+# 专门用来"叫醒"被 GitHub 关掉的定时任务。
+#
+# 背景：仓库连续 60 天没有任何提交，GitHub 会把**所有定时任务（schedule）**
+# 静默禁用（Actions 页面里会写：This scheduled workflow is disabled because
+# there hasn't been activity in this repository for at least 60 days）。
+# 被禁用之后它自己不会再跑，所以没法自救。
+#
+# 注意一个坑：用 GITHUB_TOKEN 提交**不会**触发 push 事件（GitHub 防止递归），
+# 所以 daily.yml 里的心跳提交唤不醒这里；能唤醒这里的只有"人的提交"——
+# 你自己推的、或者本地保活脚本（keepalive_local.py）用你的账号推的。
+#
+# 另外这个 workflow 由 push 触发、不在"定时任务"之列，所以它自己不会被这条规则关掉。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  actions: write        # 重新启用 workflow 需要它
+
+jobs:
+  enable:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 把定时任务重新置为启用
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for wf in daily.yml; do
+            code=$(curl -s -o /tmp/enable_resp -w "%{http_code}" -X PUT \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/workflows/${wf}/enable")
+            echo "$wf → HTTP $code"
+            if [ "$code" != "204" ]; then
+              echo "（没成功也不要紧，下次有提交还会再试一遍）"
+              cat /tmp/enable_resp
+            fi
+          done
