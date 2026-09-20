@@ -210,3 +210,7 @@ REPORT_TITLE = "每日时政 + 公考公告"
 
 # 调试用：置 1 则只打印不真发
 DRY_RUN = os.getenv("DRY_RUN", "0") == "1"
+
+# 调试用：置 1 则只发一条测试消息，验证企业微信通道通不通
+# （不抓取、不动索引。Actions 页面手动 Run workflow 时勾选「只发测试消息」即可）
+TEST_PUSH = os.getenv("TEST_PUSH", "0") == "1"

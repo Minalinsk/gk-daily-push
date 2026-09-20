@@ -131,6 +131,18 @@ def main():
     logging.info("每日时政推送开始")
     logging.info("=" * 46)
 
+    # ------- 只发一条测试消息，验证企业微信通道（不抓取、不动索引）-------
+    if config.TEST_PUSH:
+        ok = safe_push(
+            f"**🐾 {config.REPORT_TITLE} · 通道测试**\n"
+            f"看到这条说明企业微信机器人配置成功。\n"
+            f"当前配置了 {len(config.SOURCES)} 个抓取源，"
+            f"每天北京时间 07:00 自动推送（随机延迟 0~20 分钟）。",
+            is_success=True,
+        )
+        logging.info("测试推送结果：%s", "成功" if ok else "失败")
+        return ok
+
     try:
         state = load_state()
         seen = state.get("seen", [])

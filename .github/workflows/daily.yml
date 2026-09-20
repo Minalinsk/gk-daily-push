@@ -5,6 +5,15 @@ on:
   schedule:
     - cron: '0 23 * * *'
   workflow_dispatch:          # 支持手动触发，方便测试
+    inputs:
+      test_push:
+        description: '只发一条测试消息，验证企业微信通道（不抓取、不动索引）'
+        type: boolean
+        default: false
+      dry_run:
+        description: '只抓取并打印，不真的推送'
+        type: boolean
+        default: false
 
 permissions:
   contents: write             # 需要它才能把去重索引提交回仓库
@@ -40,7 +49,8 @@ jobs:
           PUSH_METHOD: ${{ secrets.PUSH_METHOD }}
           WEWORK_WEBHOOK: ${{ secrets.WEWORK_WEBHOOK }}
           WEWORK_MSG_TYPE: ${{ vars.WEWORK_MSG_TYPE }}
-          DRY_RUN: '0'
+          TEST_PUSH: ${{ inputs.test_push && '1' || '0' }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
         run: python main.py
 
       # 索引提交回仓库有两个作用：
