@@ -1,0 +1,40 @@
+name: probe
+
+# 临时探针：在 GitHub 的机器上挨个试 URL，看哪些源在这里能通。
+# 用完就删。
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: curl probe
+        run: |
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+          urls=(
+            "https://rst.shanxi.gov.cn/rsks/gwyks/"
+            "http://rst.shanxi.gov.cn/rsks/gwyks/"
+            "https://rst.shanxi.gov.cn/rsks/sydwks/"
+            "https://www.shanxi.gov.cn/"
+            "https://www.offcn.com/sydw/"
+            "http://www.offcn.com/sydw/"
+            "https://sx.offcn.com/"
+            "https://sx.huatu.com/gwy/"
+            "https://www.chinagwy.org/"
+            "https://www.gjgwy.org/"
+            "https://www.gongkaoleida.com/"
+            "https://www.fenbi.com/"
+            "https://www.51test.net/"
+            "https://www.hbgwy.org/"
+            "https://www.sxgwy.org/"
+          )
+          for u in "${urls[@]}"; do
+            out=$(curl -s -k -L -o /dev/null -w "%{http_code} %{size_download} %{time_total}" --max-time 25 -A "$UA" -H "Accept-Language: zh-CN,zh;q=0.9" "$u" 2>&1)
+            echo "RESULT | $out | $u"
+          done
+          echo "--- DNS ---"
+          for h in rst.shanxi.gov.cn www.offcn.com; do
+            echo "$h -> $(getent ahostsv4 $h | head -1)"
+          done
