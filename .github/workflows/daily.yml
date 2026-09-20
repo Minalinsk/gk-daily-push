@@ -46,7 +46,6 @@ jobs:
 
       - name: Run push script
         env:
-          PUSH_METHOD: ${{ secrets.PUSH_METHOD }}
           WEWORK_WEBHOOK: ${{ secrets.WEWORK_WEBHOOK }}
           WEWORK_MSG_TYPE: ${{ vars.WEWORK_MSG_TYPE }}
           TEST_PUSH: ${{ inputs.test_push && '1' || '0' }}

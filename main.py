@@ -11,6 +11,7 @@ import time
 import traceback
 
 import config
+import exam_dates
 from fetcher import fetch_all
 from log_utils import setup_logging, tail_logs
 from push import safe_push
@@ -125,6 +126,34 @@ def build_message(items):
     return "\n".join(lines)
 
 
+def _schedule_step(all_items):
+    """抓公告正文、抽关键时间点，然后推一条日程提醒。
+
+    这一块独立于"只推新的"逻辑：日历是累积的，就算今天没有新公告，
+    只要临近报名截止或笔试，也会提醒。出错不影响主流程。
+    """
+    if not config.SCHEDULE_ENABLED:
+        return
+    try:
+        store = exam_dates.load_store()
+        n = exam_dates.update_calendar(all_items, store)
+        exam_dates.save_store(store)
+        if n:
+            logging.info("本次新解析了 %d 篇公告的日程", n)
+
+        msg = exam_dates.build_reminder(store)
+        if not msg:
+            logging.info("近期没有需要提醒的考试日程")
+            return
+        if config.DRY_RUN:
+            logging.info("（DRY_RUN）日程提醒如下：\n%s", msg)
+        else:
+            safe_push(msg, is_success=True)
+    except Exception as exc:
+        logging.error("考试日程模块出错（已忽略）：%s", exc)
+        logging.error("堆栈：\n%s", traceback.format_exc())
+
+
 def main():
     setup_logging()
     logging.info("=" * 46)
@@ -160,6 +189,9 @@ def main():
 
         new_items = pick_new(all_items, seen_set)
         logging.info("其中没推过的 %d 条", len(new_items))
+
+        # 先推日程提醒（最有时效性），再推今天的资讯清单
+        _schedule_step(all_items)
 
         # 首次运行只建索引，避免一口气把几百条糊你脸上
         if first_run and not config.FIRST_RUN_PUSH:
