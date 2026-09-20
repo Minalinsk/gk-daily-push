@@ -31,10 +31,10 @@ jobs:
             "https://www.sxgwy.org/"
           )
           for u in "${urls[@]}"; do
-            out=$(curl -s -k -L -o /dev/null -w "%{http_code} %{size_download} %{time_total}" --max-time 25 -A "$UA" -H "Accept-Language: zh-CN,zh;q=0.9" "$u" 2>&1)
+            out=$(curl -s -k -L -o /dev/null -w "%{http_code} %{size_download} %{time_total}" --max-time 25 -A "$UA" -H "Accept-Language: zh-CN,zh;q=0.9" "$u" 2>&1) || out="curl失败/退出码$?"
             echo "RESULT | $out | $u"
           done
           echo "--- DNS ---"
           for h in rst.shanxi.gov.cn www.offcn.com; do
-            echo "$h -> $(getent ahostsv4 $h | head -1)"
+            echo "$h -> $(getent ahostsv4 $h 2>/dev/null | head -1 || echo 解析失败)"
           done
