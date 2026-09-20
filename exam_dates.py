@@ -32,7 +32,9 @@ _TAG_RE = re.compile(r"<[^>]+>")
 
 # ---------- 日期 ----------
 # 2026年9月12日 / 9月12日 / 9月12 / 9月15至……
-_DATE_CN_RE = re.compile(r"(?:(20\d{2})\s*年)?\s*(\d{1,2})\s*月\s*(\d{1,2})\s*(?:[日号])?(?!\d)")
+# 年份同时认 19xx 和 20xx：公告里常混着「1986年9月18日」这种资格/年龄说明，
+# 只认 20xx 的话会被当成本年，变成一条假日程。
+_DATE_CN_RE = re.compile(r"(?:(19\d{2}|20\d{2})\s*年)?\s*(\d{1,2})\s*月\s*(\d{1,2})\s*(?:[日号])?(?!\d)")
 # 2026-09-12 / 2026/9/12 / 2026.9.12
 _DATE_ISO_RE = re.compile(r"(20\d{2})\s*[-/.]\s*(\d{1,2})\s*[-/.]\s*(\d{1,2})(?!\d)")
 
@@ -83,29 +85,51 @@ def _fragments(text):
 
 
 def _find_dates(frag, default_year):
-    """片段里的日期，按出现顺序返回 [(date, 原文), ...]，去重。"""
-    found = []
+    """片段里的日期，按出现顺序返回 [date, ...]，去重。
+
+    年份只写了半截的两种情况，在这里补齐：
+      ① 「2025年10月15日至10月24日」——后半段省略了年份，要沿用前一个日期的年份。
+         不补的话会拿"公告发布年"顶上，把去年的旧公告算成今年的（实测国考那条
+         2025 年 10 月的公告被排到了 2026 年 10 月）。
+      ② 沿用之后反而**早于**前一个日期，说明是跨年区间（「12月20日至1月5日」），
+         再往后推一年。
+    """
+    items = []                      # (位置, 日期, 原文里到底写没写年份)
     for m in _DATE_ISO_RE.finditer(frag):
         try:
             d = datetime.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
         except ValueError:
             continue
-        found.append((m.start(), d))
+        items.append((m.start(), d, True))
     for m in _DATE_CN_RE.finditer(frag):
-        year = int(m.group(1)) if m.group(1) else default_year
         try:
-            d = datetime.date(year, int(m.group(2)), int(m.group(3)))
+            d = datetime.date(int(m.group(1)) if m.group(1) else default_year,
+                              int(m.group(2)), int(m.group(3)))
         except ValueError:
             continue
-        found.append((m.start(), d))
+        items.append((m.start(), d, bool(m.group(1))))
 
-    found.sort(key=lambda x: x[0])
-    out, seen = [], set()
-    for _, d in found:
+    items.sort(key=lambda x: x[0])
+
+    out, seen, prev = [], set(), None
+    for _, d, explicit in items:
+        if not explicit and prev is not None:
+            # 省了年份 → 先按前一个日期的年份算；算出来又早于前一个日期，
+            # 说明跨年了，再往后推（「12月20日至1月5日」→ 2027-01-05）。
+            try:
+                d = d.replace(year=prev.year)
+            except ValueError:      # 2 月 29 日碰上没这个日期的年份，保持原样
+                pass
+            while d < prev:
+                try:
+                    d = d.replace(year=d.year + 1)
+                except ValueError:
+                    break
         if d in seen:
             continue
         seen.add(d)
         out.append(d)
+        prev = d
     return out
 
 
@@ -536,8 +560,6 @@ def build_reminder(store):
         used += size
         return True
 
-    shown = 0
-
     if ongoing:
         add("**🔥 报名进行中（%d）**" % len(ongoing))
         n = 0
@@ -549,7 +571,6 @@ def build_reminder(store):
             if not add(line):
                 break
             n += 1
-        shown += n
         if len(ongoing) > n:
             add("- …另有 %d 条报名进行中" % (len(ongoing) - n))
         add("")
@@ -565,7 +586,6 @@ def build_reminder(store):
             if not add(line):
                 break
             n += 1
-        shown += n
         if len(upcoming) > n:
             add("- …另有 %d 条" % (len(upcoming) - n))
         add("")
@@ -580,11 +600,13 @@ def build_reminder(store):
             if not add(line):
                 break
             n += 1
-        shown += n
         if len(other) > n:
             add("- …另有 %d 条" % (len(other) - n))
         add("")
 
+    # 这里的"共 N 条"是三个板块加起来的总数（含被折叠的），
+    # 跟上面每个板块括号里的数字对得上。
     lines.append("共 %d 条 · %s 更新"
-                 % (shown, time.strftime("%H:%M", time.gmtime(time.time() + 8 * 3600))))
+                 % (len(ongoing) + len(upcoming) + len(other),
+                    time.strftime("%H:%M", time.gmtime(time.time() + 8 * 3600))))
     return "\n".join(lines)
