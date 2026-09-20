@@ -16,6 +16,7 @@
 """
 
 import datetime
+import difflib
 import html as html_mod
 import json
 import logging
@@ -431,6 +432,79 @@ KEY_KINDS = ("报名开始", "报名截止", "准考证开始", "准考证截止
 _KEY_ORDER = ("笔试", "面试", "准考证截止", "准考证开始", "准考证打印",
               "报名截止", "报名开始")
 
+# 去重：两条标题**只有这些词的差别**时，才算同一篇公告。
+# 华图 / 中公互相转载，惯用「招聘 ↔ 引进」「公开」「工作人员」「年 / 第 / 批」
+# 这类字眼做区分；反过来，一旦差在「民乐 ↔ 肃南」「榆林市」这种专名上，
+# 就宁可各留一行，也不要误删一条真公告。
+_IGNORABLE_DIFF_RE = re.compile(
+    r"^(?:年度|度|年|第|批|次|期|届|招聘|招录|招考|招收|公开|面向社会|面向|"
+    r"引进|选聘|选调|遴选|选录|补充|再次|公告|简章|通告|通知|公示|安排|"
+    r"事业|单位|工作|人员|岗位|职位|编制|计划|方案|共|计|若干|"
+    r"人|名|个|位|的|与|和|及)+$"
+)
+
+
+def _dedup_norm(title):
+    """标题归一化：去掉标点空白和年份，剩下的用来比对。"""
+    return re.sub(r"[\s\W]", "", re.sub(r"20\d{2}|19\d{2}", "", title or ""))
+
+
+def _dkey_compatible(a, b):
+    """两组"考试时间"能不能视为同一场：完全相同，或一方是另一方的子集。
+
+    子集也算，是因为两个站解析同一篇公告时常常一个多抠出一个时间点；
+    子集意味着**没有互相矛盾的日期**，不会把两场不同的考试合并到一起。
+    """
+    sa, sb = set(a), set(b)
+    return sa == sb or sa <= sb or sb <= sa
+
+
+def _dedup_items(items):
+    """把"同一篇公告被两个网站各转一遍"的合成一条，返回留下的那些。
+
+    留下的那条挑"时间点多、标题完整"的——否则合并时会把
+    「笔试 X 月 X 日」这类信息一起丢掉。
+    """
+    kept = []
+    for it in items:
+        dup_at = None
+        for idx, old in enumerate(kept):
+            if _dkey_compatible(it["dkey"], old["dkey"]) \
+                    and _same_announcement(it["norm"], old["norm"]):
+                dup_at = idx
+                break
+        if dup_at is None:
+            kept.append(it)
+            continue
+        old = kept[dup_at]
+        logging.info("去重：%s ⟵ 与「%s」重复", it["short"][:26], old["short"][:26])
+        if (len(it["dkey"]), len(it["title"])) > (len(old["dkey"]), len(old["title"])):
+            kept[dup_at] = it
+    return kept
+
+
+def _same_announcement(a, b):
+    """两篇是不是同一张公告（被两个网站各转了一遍）。
+
+    判据有两道：整体得够像（≥0.6），且**每一处差异都是发布用语**。
+    第二道是关键——「民乐县」和「肃南县」两条公告的标题相似度高达 0.90、
+    报名时间还完全一样，只看相似度必然误删一条。
+    """
+    if a == b:
+        return True
+    if abs(len(a) - len(b)) > 12:        # 长度差太多，多半不是同一条
+        return False
+    sm = difflib.SequenceMatcher(None, a, b)
+    if sm.ratio() < 0.6:
+        return False
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+        if tag == "equal":
+            continue
+        for piece in (a[i1:i2], b[j1:j2]):
+            if piece and not _IGNORABLE_DIFF_RE.match(piece):
+                return False
+    return True
+
 
 def _span(dates, name, k1, k2):
     """一对起止日期 → 「报名 9月18日–9月23日」；只有一头也照样显示。"""
@@ -496,24 +570,29 @@ def build_reminder(store):
         if ev.get("url"):
             by_url.setdefault(ev["url"], []).append(ev)
 
-    ongoing, upcoming, other = [], [], []
-    seen_title = set()
+    # ① 先把"同一篇公告被华图、中公各转一遍"的合并掉，只留信息最全的那条。
+    #    只比"考试时间"（报名、准考证、笔试、面试），不比缴费/资格审查——
+    #    那两项各站解析出的早晚不一，拿来当条件就永远去不掉重了。
+    #    标题用"差异必须只是发布用语"来判（见 _same_announcement）。
+    items = []
     for url, evs in by_url.items():
         dates = {}                       # kind -> 日期（同名只留第一个）
         for ev in evs:
             dates.setdefault(ev["kind"], ev["date"])
         if not (set(dates) & set(KEY_KINDS)):
             continue                     # 只写了缴费/资格审查/公示的，不算考试公告
-        title = _short(evs[0]["title"])
-        # 同一篇公告经常被华图、中公同时转：标题长得差不多，报名/考试时间也一致。
-        # 只比"考试时间"（报名、准考证、笔试、面试），不比缴费/资格审查——
-        # 那两项各站解析出的早晚不一，拿来当条件就永远去不掉重了。
-        norm = re.sub(r"[\s\W]", "", re.sub(r"年度|年|20\d{2}|\d+", "", evs[0]["title"]))[:12]
-        key = (norm, tuple(sorted((k, v) for k, v in dates.items() if k in KEY_KINDS)))
-        if key in seen_title:
-            continue
-        seen_title.add(key)
+        items.append({
+            "url": url, "title": evs[0]["title"], "short": _short(evs[0]["title"]),
+            "norm": _dedup_norm(evs[0]["title"]), "dates": dates,
+            "dkey": tuple(sorted((k, v) for k, v in dates.items() if k in KEY_KINDS)),
+        })
 
+    kept = _dedup_items(items)
+
+    # ② 再按时间分块
+    ongoing, upcoming, other = [], [], []
+    for it in kept:
+        dates, url, title = it["dates"], it["url"], it["short"]
         start, end = dates.get("报名开始"), dates.get("报名截止")
         if start and end:
             d_start = datetime.date.fromisoformat(start)
