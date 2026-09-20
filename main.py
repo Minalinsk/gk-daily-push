@@ -16,6 +16,7 @@ import traceback
 
 import config
 import exam_dates
+import topics
 from fetcher import fetch_all, url_date
 from log_utils import setup_logging, tail_logs
 from push import safe_push
@@ -144,7 +145,7 @@ def pick_news(all_items, seen_set):
     # 按源归拢，让消息里同一个源的内容连在一起
     order = {name: i for i, name in enumerate(by_source.keys())}
     final.sort(key=lambda x: order.get(x.get("source", ""), 999))
-    return final
+    return topics.tag_all(final)
 
 
 def build_message(items):
@@ -152,13 +153,14 @@ def build_message(items):
     date_str = time.strftime("%m-%d", now)
     lines = [f"**📰 {config.REPORT_TITLE} · {date_str}**", ""]
 
-    current, shown, budget = None, 0, 3900
+    current, shown, budget = None, 0, config.MSG_BUDGET
     for it in items:
         block = []
         if it.get("source", "") != current:
             current = it["source"]
             block.append(f"**{current}**")
-        block.append(f"- [{_clean_title(it['title'])}]({it['url']})")
+        block.append(f"- {_tag_prefix(it.get('topic', ''))}"
+                     f"[{_clean_title(it['title'])}]({it['url']})")
 
         chunk = "\n".join(block) + "\n"
         if len("\n".join(lines).encode("utf-8")) + len(chunk.encode("utf-8")) > budget:
@@ -171,6 +173,13 @@ def build_message(items):
     lines.append("")
     lines.append(f"共 {shown} 条 · {time.strftime('%H:%M', now)} 推送")
     return "\n".join(lines)
+
+
+def _tag_prefix(topic):
+    """考点标签：只挂一个，挂在标题前面。"""
+    if not (config.TOPIC_TAGS and topic):
+        return ""
+    return f"【{topic}】"
 
 
 def _send(text, is_success=True, tag="消息"):
