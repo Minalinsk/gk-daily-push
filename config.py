@@ -207,6 +207,13 @@ TITLE_MAX = 38          # 标题超过多少字截断
 # 某个源前一晚没更新时，退而取它最新的几条，免得整个源缺席。
 NEWS_FALLBACK_MAX = 3   # 兜底时每个源最多取几条
 
+# 一天跑两次：早上那次看「前一天」（昨晚的新闻），晚上那次看「当天」。
+# 这条线按北京时间自动切换；想固定成某一天，就把 NEWS_DAY 设成
+# "today" 或 "yesterday"（环境变量 NEWS_DAY 也可以）。
+NEWS_WINDOW_AUTO = True
+NEWS_EVENING_HOUR = 12          # 北京时间过了 12 点，就认为这次要看"当天"
+NEWS_DAY = os.getenv("NEWS_DAY") or ""
+
 # 首次运行（本地还没索引）时：True = 照常推送，可能一次推一大串
 #                          False = 只建索引不推送，避免被刷屏
 FIRST_RUN_PUSH = False
@@ -282,3 +289,7 @@ DRY_RUN = os.getenv("DRY_RUN", "0") == "1"
 # 调试用：置 1 则只发一条测试消息，验证企业微信通道通不通
 # （不抓取、不动索引。Actions 页面手动 Run workflow 时勾选「只发测试消息」即可）
 TEST_PUSH = os.getenv("TEST_PUSH", "0") == "1"
+
+# 日程提醒要不要发。19:00 那次会置成 0：时间表一天推一条就够，
+# 不然晚上会收到一条和早上几乎一样的。workflow 里按 cron 设置。
+PUSH_SCHEDULE = os.getenv("PUSH_SCHEDULE", "1") == "1"

@@ -90,18 +90,40 @@ def _pub_date(it):
         return None
 
 
-def pick_news(all_items, seen_set):
-    """每日资讯清单：只挑时政源里「前一天」发布的条目。
+def _news_target_day():
+    """这次清单该看哪一天：早上（<12 点）看前一天，晚上看当天。
 
-    某个源前一晚没更新（一条昨天的都挑不出来）时，退而取它最新的几条，
+    一天跑两次，两次的内容才不重复：
+      07:00 那次 = 昨晚的新闻；19:00 那次 = 白天的新闻。
+    config.NEWS_DAY 设了 "today"/"yesterday" 就按它来（手动跑或想固定时用）。
+    """
+    today = exam_dates.bj_today()
+    if config.NEWS_DAY == "today":
+        return today
+    if config.NEWS_DAY == "yesterday":
+        return today - datetime.timedelta(days=1)
+    if config.NEWS_WINDOW_AUTO and bj_now().tm_hour >= config.NEWS_EVENING_HOUR:
+        return today
+    return today - datetime.timedelta(days=1)
+
+
+def _news_day_label():
+    """「今天」还是「前一天」——只用来写日志和空消息文案。"""
+    return "今天" if _news_target_day() == exam_dates.bj_today() else "前一天"
+
+
+def pick_news(all_items, seen_set):
+    """每日资讯清单：只挑时政源里目标那一天的条目（早上看昨天、晚上看今天）。
+
+    某个源那一天没更新（一条都挑不出来）时，退而取它最新的几条，
     免得整个源缺席。**公告不在这条清单里**——公告统一走日程提醒。
     """
     by_source = eligible_by_source(all_items, seen_set, kind="news")
-    yesterday = exam_dates.bj_today() - datetime.timedelta(days=1)
+    target = _news_target_day()
 
     queues = []
     for name, queue in by_source.items():
-        fresh = [it for it in queue if _pub_date(it) == yesterday]
+        fresh = [it for it in queue if _pub_date(it) == target]
         queues.append(fresh[: config.MAX_PER_SOURCE] if fresh
                       else queue[: config.NEWS_FALLBACK_MAX])
 
@@ -163,10 +185,11 @@ def _send(text, is_success=True, tag="消息"):
     return safe_push(text, is_success=is_success)
 
 
-def _schedule_step(all_items):
+def _schedule_step(all_items, send=True):
     """抓公告正文、抽关键时间点，然后推一条「考试日程提醒」。
 
     这一块独立于"只推新的"逻辑：日历是累积的，今天没有新公告也会照常提醒。
+    晚上那次（PUSH_SCHEDULE=False）只更新日历、不推送，免得一天收两条一样的时间表。
     出错不影响主流程。
     """
     if not config.SCHEDULE_ENABLED:
@@ -177,6 +200,10 @@ def _schedule_step(all_items):
         exam_dates.save_store(store)
         if n:
             logging.info("本次新解析了 %d 篇公告的日程", n)
+
+        if not send:
+            logging.info("本次不推日程提醒（只在早上那次推），日历已更新")
+            return
 
         msg = exam_dates.build_reminder(store)
         if not msg:
@@ -222,10 +249,10 @@ def main():
             )
 
         new_items = pick_news(all_items, seen_set)
-        logging.info("时政里没推过的 %d 条", len(new_items))
+        logging.info("时政里没推过的 %d 条（看的是 %s）", len(new_items), _news_day_label())
 
         # 先推日程提醒（公告的时间表），再推时政清单
-        _schedule_step(all_items)
+        _schedule_step(all_items, send=config.PUSH_SCHEDULE)
 
         # 首次运行只建索引，避免一口气把几百条糊你脸上
         if first_run and not config.FIRST_RUN_PUSH:
@@ -249,7 +276,8 @@ def main():
 
         if not new_items:
             save_state(state)  # 刷新 last_run，顺便让仓库保持活跃
-            _send(f"**📭 {config.REPORT_TITLE}**\n前一天没有新的时政内容。", is_success=True)
+            _send(f"**📭 {config.REPORT_TITLE}**\n{_news_day_label()}没有新的时政内容。",
+                  is_success=True)
             return True
 
         msg = build_message(new_items)
