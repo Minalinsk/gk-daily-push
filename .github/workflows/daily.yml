@@ -34,7 +34,11 @@ concurrency:
 jobs:
   push:
     runs-on: ubuntu-22.04
-    timeout-minutes: 20
+    # ⚠️ 必须 > 随机延迟上限（20 分钟）+ 脚本耗时（实测约 2 分钟）。
+    #    这里原来是 20，正好卡在边界上：延迟抽到 18 分钟以上时，
+    #    job 会在推送脚本跑到一半被 GitHub 强杀（约 11% 的早上那次会中招）。
+    #    留足余量后，最坏情况（延迟 20 分 + 脚本 3 分）也跑得完。
+    timeout-minutes: 45
 
     steps:
       - name: Checkout repository
