@@ -228,8 +228,10 @@ NEWS_FALLBACK_MAX = 3   # 兜底时每个源最多取几条
 TOPIC_TAGS = True
 
 # 一天跑两次：早上那次看「前一天」（昨晚的新闻），晚上那次看「当天」。
-# 这条线按北京时间自动切换；想固定成某一天，就把 NEWS_DAY 设成
-# "today" 或 "yesterday"（环境变量 NEWS_DAY 也可以）。
+# workflow 里按 cron 直接把 NEWS_DAY 设成 "yesterday" / "today"（见 daily.yml），
+# 这样就算排队晚了、跨过中午 12 点，早上那次也不会被误切成"今天"。
+# 手动触发时给的是 "auto"，才走下面这条按北京时间猜的兜底逻辑。
+# 想固定成某一天，把 NEWS_DAY 设成 "today" 或 "yesterday"（环境变量）。
 NEWS_WINDOW_AUTO = True
 NEWS_EVENING_HOUR = 12          # 北京时间过了 12 点，就认为这次要看"当天"
 NEWS_DAY = os.getenv("NEWS_DAY") or ""
