@@ -95,7 +95,7 @@ def _news_target_day():
     """这次清单该看哪一天：早上（<12 点）看前一天，晚上看当天。
 
     一天跑两次，两次的内容才不重复：
-      早上（07:07）那次 = 昨晚的新闻；晚上（19:07）那次 = 白天的新闻。
+      早上（06:07）那次 = 昨晚的新闻；晚上（18:07）那次 = 白天的新闻。
     config.NEWS_DAY 设了 "today"/"yesterday" 就按它来（手动跑或想固定时用）。
     """
     today = exam_dates.bj_today()
@@ -197,7 +197,7 @@ def _send(text, is_success=True, tag="消息"):
 def _schedule_step(all_items, state, send=True):
     """抓公告正文、抽关键时间点，然后推一条「考试日程提醒」。
 
-    **一天只提醒一遍，早上那条（07:07）**，规矩是两条：
+    **一天只提醒一遍，早上那条（06:07）**，规矩是两条：
       ① 发过就不再发：state["last_schedule"] 记着上次发的是哪一天（北京时间），
          同一天再跑（手动触发、cron 抖动重跑）都会跳过；
       ② 早上的那次负责发（send=True）；晚上的那次（send=False）平时什么都不做，
@@ -248,7 +248,7 @@ def main():
             f"**🐾 {config.REPORT_TITLE} · 通道测试**\n"
             f"看到这条说明企业微信机器人配置成功。\n"
             f"当前配置了 {len(config.SOURCES)} 个抓取源，"
-            f"每天北京时间 07:07 / 19:07 自动推送（随机延迟 0~20 分钟）。",
+            f"每天北京时间 06:07 / 18:07 自动推送（随机延迟 0~20 分钟）。",
             is_success=True,
         )
         logging.info("测试推送结果：%s", "成功" if ok else "失败")

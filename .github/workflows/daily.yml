@@ -1,8 +1,8 @@
 name: gk-daily-push
 
 # 每天跑两次（北京时间），两条消息各推各的：
-#   07:07 —— UTC 前一天 23:07：推「⏰ 考试日程提醒」+「📰 每日时政（昨晚要闻）」
-#   19:07 —— UTC 当天 11:07：只推「📰 每日时政（当天要闻）」
+#   06:07 —— UTC 前一天 22:07：推「⏰ 考试日程提醒」+「📰 每日时政（昨晚要闻）」
+#   18:07 —— UTC 当天 10:07：只推「📰 每日时政（当天要闻）」
 # 日程提醒一天只发一条（早上那条）；脚本里还有 last_schedule 兜底，
 # 手动触发或重跑都不会重复。两次都会随机延迟 0~20 分钟，错开整点。
 #
@@ -11,8 +11,8 @@ name: gk-daily-push
 #    改 cron 时记得同步改下面 PUSH_SCHEDULE 里比对的字符串。
 on:
   schedule:
-    - cron: '7 23 * * *'      # 北京时间 07:07（避开整点高峰）
-    - cron: '7 11 * * *'      # 北京时间 19:07（避开整点高峰）
+    - cron: '7 22 * * *'      # 北京时间 06:07（避开整点高峰）
+    - cron: '7 10 * * *'      # 北京时间 18:07（避开整点高峰）
   workflow_dispatch:          # 支持手动触发，方便测试
     inputs:
       test_push:
@@ -59,10 +59,10 @@ jobs:
           WEWORK_MSG_TYPE: ${{ vars.WEWORK_MSG_TYPE }}
           TEST_PUSH: ${{ inputs.test_push && '1' || '0' }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
-          # 19:07 那次（UTC 11:07）不重发日程提醒；手动触发按 07:07 那套走。
+          # 18:07 那次（UTC 10:07）不重发日程提醒；手动触发按 06:07 那套走。
           # 脚本里还有 last_schedule 兜底：同一天发过就跳过，不会再重复。
           # ⚠️ 这个字符串必须和上面的 cron 完全一致，改了 cron 就要一起改。
-          PUSH_SCHEDULE: ${{ github.event.schedule == '7 11 * * *' && '0' || '1' }}
+          PUSH_SCHEDULE: ${{ github.event.schedule == '7 10 * * *' && '0' || '1' }}
         run: python main.py
 
       # 把索引和考试日历提交回仓库，记住推过什么、下次只推新的。
