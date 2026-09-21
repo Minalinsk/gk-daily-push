@@ -1,18 +1,27 @@
 name: gk-daily-push
 
 # 每天跑两次（北京时间），两条消息各推各的：
-#   06:07 —— UTC 前一天 22:07：推「⏰ 考试日程提醒」+「📰 每日时政（昨晚要闻）」
-#   18:07 —— UTC 当天 10:07：只推「📰 每日时政（当天要闻）」
+#   06:07 —— 推「⏰ 考试日程提醒」+「📰 每日时政（昨晚要闻）」
+#   18:07 —— 只推「📰 每日时政（当天要闻）」
 # 日程提醒一天只发一条（早上那条）；脚本里还有 last_schedule 兜底，
-# 手动触发或重跑都不会重复。两次都会随机延迟 0~20 分钟，错开整点。
+# 手动触发或重跑都不会重复。
 #
-# ⚠️ cron 刻意不写整点（:00）：GitHub 的定时器在整点最挤，整点的任务会被推迟、
-#    严重时直接漏跑（实测整点 cron 迟到过 1 小时 32 分）。挪到 :07 会稳很多。
-#    改 cron 时记得同步改下面 PUSH_SCHEDULE 里比对的字符串。
+# ⚠️ 关键约定：cron 只负责"把 job 拉起来"，真正的开跑时刻由下面
+#    「Wait until … (Beijing)」那一步等到点上再动手 ——
+#      04:07 触发 -> 等到 06:07 开跑
+#      17:07 触发 -> 等到 18:07 开跑
+#    为什么绕这一圈：GitHub 的定时器不准（同账号实测被拖过 1 小时 32 分，
+#    本仓库 06:07 那次 cron 实际 09:00 才派活，晚了 1 小时 53 分）。
+#    提前两三小时把 job 拉起来、再在 job 内等到目标时刻，才可能真的准时开跑。
+#    两个时刻都在 UTC 低峰外沿，触发得越早越容易躲开排队。
+#
+#    改 cron 时记得同步改两处：
+#      ① 下面 Wait 步骤里的 TARGET_UTC / TARGET_BJ
+#      ② PUSH_SCHEDULE 里比对的 cron 字符串
 on:
   schedule:
-    - cron: '7 22 * * *'      # 北京时间 06:07（避开整点高峰）
-    - cron: '7 10 * * *'      # 北京时间 18:07（避开整点高峰）
+    - cron: '7 20 * * *'      # 北京时间 04:07 触发（等 2 小时，06:07 开跑）
+    - cron: '7 9 * * *'       # 北京时间 17:07 触发（等 1 小时，18:07 开跑）
   workflow_dispatch:          # 支持手动触发，方便测试
     inputs:
       test_push:
@@ -34,11 +43,12 @@ concurrency:
 jobs:
   push:
     runs-on: ubuntu-22.04
-    # ⚠️ 必须 > 随机延迟上限（20 分钟）+ 脚本耗时（实测约 2 分钟）。
-    #    这里原来是 20，正好卡在边界上：延迟抽到 18 分钟以上时，
-    #    job 会在推送脚本跑到一半被 GitHub 强杀（约 11% 的早上那次会中招）。
-    #    留足余量后，最坏情况（延迟 20 分 + 脚本 3 分）也跑得完。
-    timeout-minutes: 45
+    # ⚠️ 超时必须覆盖"最长等待 + 脚本耗时"。
+    #    早上那次 job 起来后会先等最多 2 小时（04:07 -> 06:07），
+    #    脚本实测约 2 分 7 秒；45 分钟是给"随机延迟"时代留的，
+    #    现在等待上限变成 120 分钟，按 45 分钟配会被 GitHub 在等待中强杀。
+    #    180 分钟 = 120 分等待 + 60 分余量，最坏情况也跑得完。
+    timeout-minutes: 180
 
     steps:
       - name: Checkout repository
@@ -49,13 +59,41 @@ jobs:
         with:
           python-version: '3.11'
 
-      # 纯标准库实现，不需要 pip install，省时间也少一个失败点
-      - name: Random Delay (0-20 min)
+      # 纯标准库实现，不需要 pip install，省时间也少一个失败点。
+      #
+      # GitHub 的 cron 只保证"大概这个时间把 job 拉起来"，不保证准点。
+      # 所以这里用「绝对时刻」等到点再开跑，而不是固定 sleep 多少秒：
+      #   派活早了（正常情况）就多等一会儿 —— 04:07 起来等到 06:07；
+      #   派活晚了（已经过了目标时刻）就直接开跑，并把迟到的分钟数打进日志。
+      # 目标时刻统一换算成 UTC（北京 = UTC+8），不依赖 runner 的时区数据，
+      # 所以只用 date -u，不用 TZ=Asia/Shanghai。
+      #
+      # MAX_WAIT 是一道保险：正常最多等 2 小时，万一 GitHub 排队跨过了 UTC 零点
+      # （或延迟超过 2.5 小时），date -u +%F 会算成"明天的目标"，
+      # 那样会白等 20 多个小时、还会把 concurrency 队列堵住（cancel-in-progress
+      # 是 false，后面的定时只能干等）。所以超过 2.5 小时就放弃等待、直接开跑。
+      - name: Wait until 06:07 / 18:07 (Beijing)
         if: github.event_name == 'schedule'
         run: |
-          DELAY=$((RANDOM % 1201))
-          echo "本次随机延迟 ${DELAY} 秒（约 $((DELAY / 60)) 分 $((DELAY % 60)) 秒）"
-          sleep $DELAY
+          if [ "${{ github.event.schedule }}" = "7 20 * * *" ]; then
+            TARGET_UTC="22:07"     # 北京 06:07（早上那次）
+            TARGET_BJ="06:07"
+          else
+            TARGET_UTC="10:07"     # 北京 18:07（晚上那次）
+            TARGET_BJ="18:07"
+          fi
+          MAX_WAIT=9000            # 2.5 小时，超过就不等了
+          now=$(date -u +%s)
+          target=$(date -u -d "$(date -u +%F) $TARGET_UTC" +%s)
+          diff=$((target - now))
+          if [ "$diff" -le 0 ]; then
+            echo "已过北京 $TARGET_BJ，立即开跑（GitHub 排队晚了 $(( -diff / 60 )) 分钟）"
+          elif [ "$diff" -gt "$MAX_WAIT" ]; then
+            echo "⚠️ 距北京 $TARGET_BJ 还有 $((diff / 60)) 分钟，超过 $((MAX_WAIT / 60)) 分钟上限（多半是排队跨了 UTC 零点），不再等待，立即开跑"
+          else
+            echo "等到北京 $TARGET_BJ 再开跑，还需 $((diff / 60)) 分 $((diff % 60)) 秒"
+            sleep "$diff"
+          fi
 
       - name: Run push script
         env:
@@ -63,10 +101,10 @@ jobs:
           WEWORK_MSG_TYPE: ${{ vars.WEWORK_MSG_TYPE }}
           TEST_PUSH: ${{ inputs.test_push && '1' || '0' }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
-          # 18:07 那次（UTC 10:07）不重发日程提醒；手动触发按 06:07 那套走。
+          # 晚上那次（cron UTC 09:07）不重发日程提醒；手动触发按早上那套走。
           # 脚本里还有 last_schedule 兜底：同一天发过就跳过，不会再重复。
           # ⚠️ 这个字符串必须和上面的 cron 完全一致，改了 cron 就要一起改。
-          PUSH_SCHEDULE: ${{ github.event.schedule == '7 10 * * *' && '0' || '1' }}
+          PUSH_SCHEDULE: ${{ github.event.schedule == '7 9 * * *' && '0' || '1' }}
         run: python main.py
 
       # 把索引和考试日历提交回仓库，记住推过什么、下次只推新的。
