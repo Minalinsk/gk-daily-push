@@ -129,7 +129,8 @@ def extract_articles(page_url, text, pattern, limit, title_pattern=""):
             continue
 
         url = urllib.parse.urljoin(page_url, href)
-        # 去掉锚点和查询串，保证去重稳定
+        # 只去掉 #锚点。查询串**故意保留**：有些站的文章地址就靠 ?id= 区分，
+        # 一刀切掉反而会把不同文章并成一条。
         url = url.split("#")[0]
         if url in seen_url:
             continue

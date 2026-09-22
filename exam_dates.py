@@ -151,7 +151,17 @@ def _find_dates(frag, default_year):
 
 def _kind_of(frag):
     for kind, words in KINDS:
-        if any(w in frag for w in words):
+        for w in words:
+            if w not in frag:
+                continue
+            # 「考试时间」是个含糊说法：既可能是笔试，也可能是面试。
+            # 实测「面试考试时间：2026年9月20日」原来被挂成了"笔试"。
+            # 判断口径：写了「面试考试时间」的算面试；片段里提到面试、
+            # 却完全没提笔试的也算面试；其它（例如
+            # 「考试时间：…8:30—11:00 笔试成绩和进入面试人员名单…」）仍算笔试。
+            if w == "考试时间" and ("面试考试时间" in frag
+                                    or ("面试" in frag and "笔试" not in frag)):
+                return "面试"
             return kind
     return None
 
@@ -213,6 +223,12 @@ def _window_pass(text, default_year):
                 # 裸"报名"命中「报名费/报名表/…」时跳过（那不是报名事件）
                 if w == "报名" and _RECRUIT_FALSE_RE.match(text, m.start()):
                     continue
+                # 「考试时间」含糊：附近提到面试（且没提笔试）就交给面试那条线，
+                # 别在这儿算成笔试。片段法会给它挂「面试」。
+                if w == "考试时间":
+                    win = text[max(0, m.start() - 8): m.end() + _WINDOW_SPAN]
+                    if "面试考试时间" in win or ("面试" in win and "笔试" not in win):
+                        continue
                 # 窗口右端不能切在数字中间：把「…至2026年9月27日」切成「…9月2」
                 # 会凭空多出一个 9月2日（安徽林业职业技术学院那条实测多了
                 # 一条"报名截止 2026-09-02"）。往后吃满连续数字再切。
