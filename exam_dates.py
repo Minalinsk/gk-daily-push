@@ -61,6 +61,21 @@ _CONNECT_RE = re.compile(r"时间|日期|于|为|起|至|—|–|-|~|：|:")
 # 片段里出现这些说明只是个"另行通知"，没有具体时间，别浪费解析
 _VAGUE_RE = re.compile(r"另行通知|另行公告|详见|关注|待定|以后续")
 
+# 「报名」是所有关键词里最宽的一个，正文里的"报名费/报名表/报名人数/报名确认"
+# 这类**说明性**文字也会命中它，实测会凭空长出一条报名区间：
+#   2026年湖北省就业援藏…公告 里的「本次招聘考试免收报名费。4.打印准考证：
+#   10月8日9:00至10月10日10:30」→ 被解析成 报名开始 10-08 / 报名截止 10-10
+#   （那其实是准考证的时间），这条公告的报名窗口因此被显示成 9月22日–10月10日。
+# 所以凡是"报名"后面紧跟这些字的，都不算报名事件本身。
+_RECRUIT_FALSE_RE = re.compile(
+    r"报名(?:费|费用|表|确认|确定|人数|条件|须知|网址|系统|入口|流程|照片|信息|"
+    r"序号|登记表|记录表|推荐表|资格)")
+
+
+def _recruit_ok(frag):
+    """片段里除了"报名费/报名表/…"之外，还有没有真正的"报名"。"""
+    return "报名" in _RECRUIT_FALSE_RE.sub("", frag)
+
 
 # ============================== 工具 ==============================
 
@@ -195,13 +210,22 @@ def _window_pass(text, default_year):
     for kind, words in KINDS:
         for w in words:
             for m in re.finditer(re.escape(w), text):
-                seg = text[m.end(): m.end() + _WINDOW_SPAN]
+                # 裸"报名"命中「报名费/报名表/…」时跳过（那不是报名事件）
+                if w == "报名" and _RECRUIT_FALSE_RE.match(text, m.start()):
+                    continue
+                # 窗口右端不能切在数字中间：把「…至2026年9月27日」切成「…9月2」
+                # 会凭空多出一个 9月2日（安徽林业职业技术学院那条实测多了
+                # 一条"报名截止 2026-09-02"）。往后吃满连续数字再切。
+                end = m.end() + _WINDOW_SPAN
+                while end < len(text) and text[end].isdigit():
+                    end += 1
+                seg = text[m.end(): end]
                 if not _CONNECT_RE.search(seg[:12]):
                     continue
                 dates = _find_dates(seg, default_year)
                 if not dates:
                     continue
-                frag = text[max(0, m.start() - 8): m.end() + _WINDOW_SPAN]
+                frag = text[max(0, m.start() - 8): end]
                 if _VAGUE_RE.search(frag):
                     continue
                 for name, d in _assign(kind, dates, frag):
@@ -218,6 +242,9 @@ def parse_schedule(title, plain, default_year, url=""):
                 continue
             kind = _kind_of(frag)
             if not kind:
+                continue
+            # 片段里的"报名"如果只是"报名费/报名表"这类说明，别当报名事件
+            if kind == "报名" and not _recruit_ok(frag):
                 continue
             dates = _find_dates(frag, default_year)
             if not dates:
@@ -438,6 +465,12 @@ KEY_KINDS = ("报名开始", "报名截止", "准考证开始", "准考证截止
 _KEY_ORDER = ("笔试", "面试", "准考证截止", "准考证开始", "准考证打印",
               "报名截止", "报名开始")
 
+# 同一篇公告里**同名事件有多条**时怎么取值（多阶段报名、多批缴费/审查很常见）：
+# 截止类取**最晚**那个，其余（开始类）取最早的。早先一律"只留第一个"，
+# 两段就会错配，提醒里出现「报名 9月15日–9月12日」这种倒挂
+# （2027 内蒙古事业单位那条实测）。
+_TAKE_LATEST = ("报名截止", "准考证截止", "缴费截止", "资格审查截止", "公示截止")
+
 # 去重：两条标题**只有这些词的差别**时，才算同一篇公告。
 # 华图 / 中公互相转载，惯用「招聘 ↔ 引进」「公开」「工作人员」「年 / 第 / 批」
 # 这类字眼做区分；反过来，一旦差在「民乐 ↔ 肃南」「榆林市」这种专名上，
@@ -516,6 +549,10 @@ def _span(dates, name, k1, k2):
     """一对起止日期 → 「报名 9月18日–9月23日」；只有一头也照样显示。"""
     a, b = dates.get(k1), dates.get(k2)
     if a and b:
+        if b < a:
+            # 兜底：万一截止比开始还早（数据脏、或两段报名没配好），
+            # 宁可不给区间，也别显示"9月15日–9月12日"这种倒挂。
+            return "%s %s起" % (name, _fmt(a))
         return "%s %s–%s" % (name, _fmt(a), _fmt(b))
     if a:
         return "%s %s起" % (name, _fmt(a))
@@ -582,9 +619,15 @@ def build_reminder(store):
     #    标题用"差异必须只是发布用语"来判（见 _same_announcement）。
     items = []
     for url, evs in by_url.items():
-        dates = {}                       # kind -> 日期（同名只留第一个）
+        dates = {}                       # kind -> 日期
         for ev in evs:
-            dates.setdefault(ev["kind"], ev["date"])
+            kind, day = ev["kind"], ev["date"]
+            # 同名多条时的取值口径见 _TAKE_LATEST 的注释
+            if kind in _TAKE_LATEST:
+                if kind not in dates or day > dates[kind]:
+                    dates[kind] = day
+            else:
+                dates.setdefault(kind, day)
         if not (set(dates) & set(KEY_KINDS)):
             continue                     # 只写了缴费/资格审查/公示的，不算考试公告
         items.append({
