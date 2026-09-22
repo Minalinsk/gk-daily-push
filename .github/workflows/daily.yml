@@ -73,11 +73,17 @@ jobs:
     timeout-minutes: 330
 
     steps:
+      # ⚠️ 版本别往回调：v4 / v5 声明的是 Node 20 运行时，
+      #    而 GitHub 已经弃用 Node 20（日志顶部会挂一条 ##[warning]
+      #    "Node.js 20 is deprecated"，看着像报错，其实只是提醒）。
+      #    checkout v5 / setup-python v6 起改用 Node 24。
+      #    （没有直接上最新的 v7：v6 起 checkout 改了凭据持久化的实现，
+      #      而本工作流依赖 persist-credentials 把 state/ 推回仓库，先稳一版。）
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 

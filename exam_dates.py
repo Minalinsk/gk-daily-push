@@ -286,7 +286,9 @@ def save_store(store, path=None):
         store["parsed"] = dict(items)
 
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-    with open(path, "w", encoding="utf-8") as fp:
+    # newline="\n"：不加的话 Windows 本地跑会落成 CRLF，
+    # 一提交就是"整个文件重写"的假 diff（Actions 上是 Linux，写出来本来就是 LF）。
+    with open(path, "w", encoding="utf-8", newline="\n") as fp:
         json.dump(store, fp, ensure_ascii=False, indent=1)
     logging.info("考试日历已保存：%d 个时间点", len(store["events"]))
 
@@ -321,6 +323,10 @@ def _candidates(all_items, store):
     picked = []
     for it in all_items:
         url, title = it["url"], it["title"]
+        # 只解析**公告源**（kind="announce"）的东西。以前这里只看标题关键词，
+        # 时政源里标题带"公告/招聘/通知"的文章也会被抓去解析，混进考试日历。
+        if not is_announcement(it):
+            continue
         if url in parsed or not _worth_parsing(title):
             continue
         pub = url_date(url)

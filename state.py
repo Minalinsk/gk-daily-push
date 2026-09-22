@@ -56,9 +56,12 @@ def save_state(state, path=None):
         except Exception:
             pass
 
-    state["last_run"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    # 明确按**北京时间**记（服务器跑在 UTC，直接用 time.strftime 会差 8 小时，
+    # 跟消息里的时间、跟 last_schedule 对不上，看日志时容易误会）
+    state["last_run"] = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(time.time() + 8 * 3600))
 
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-    with open(path, "w", encoding="utf-8") as fp:
+    # newline="\n" 见 exam_dates.save_store 的注释：防 Windows 本地跑出 CRLF 假 diff
+    with open(path, "w", encoding="utf-8", newline="\n") as fp:
         json.dump(state, fp, ensure_ascii=False, indent=1)
     logging.info("索引已保存，累计 %d 条", len(seen))

@@ -211,7 +211,15 @@ def _schedule_step(all_items, state, send=True):
     try:
         store = exam_dates.load_store()
         n = exam_dates.update_calendar(all_items, store)
-        exam_dates.save_store(store)
+        # ⚠️ DRY_RUN 时不能写盘：exams.json 也是"状态"，写下去会让工作区变脏，
+        #    而 workflow 里那步 Commit state 是 if: always()，
+        #    干跑一次就会平白多出一条"更新已推送索引"的提交。
+        #    （日历只在内存里更新，所以下面的提醒文案照样是完整的）
+        if config.DRY_RUN:
+            logging.info("（DRY_RUN）考试日历本应保存 %d 个时间点，已跳过写盘",
+                         len(store.get("events", [])))
+        else:
+            exam_dates.save_store(store)
         if n:
             logging.info("本次新解析了 %d 篇公告的日程", n)
 

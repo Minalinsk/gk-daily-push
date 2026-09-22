@@ -11,7 +11,9 @@ name: keepalive
 # 20 天这个阈值是留了余量的：两次检查最多隔 31 天，最坏情况也不会到 60 天。
 on:
   schedule:
-    - cron: '0 4 1 * *'     # 每月 1 号，UTC 04:00 = 北京时间 12:00
+    # 分针刻意写 7：GitHub 的调度器在整点最挤（月度任务被拖点也无所谓，
+    # 但跟项目里"一律避开整点"的约定保持一致）。
+    - cron: '7 4 1 * *'     # 每月 1 号，UTC 04:07 = 北京时间 12:07
   workflow_dispatch:        # 想手动确认一下也行
 
 permissions:
@@ -28,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5      # v4 声明的是 Node 20，已弃用，见 daily.yml 里的注释
 
       # checkout 默认只取 1 个提交，而它就是 main 上最新的那个，
       # 所以这里直接看 HEAD 的提交时间就够了。
