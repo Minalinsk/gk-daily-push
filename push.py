@@ -46,17 +46,23 @@ def _truncate(text, limit=MAX_BYTES):
     if len(raw) <= limit:
         return text
 
+    # 尾部的提示行自己也要占字节，先把它的位置留出来。
+    # 不预留的话，加完这行总长度就超过 limit 了 —— 这道"最后一公里"的保险
+    # 反而成了唯一会突破上限的地方。
+    tail = "…（内容过长，其余已截断）"
+    avail = limit - len(tail.encode("utf-8")) - 1     # -1 是提示行前面的那个换行
+
     kept, used = [], 0
     for line in text.split("\n"):
         size = len(line.encode("utf-8")) + 1     # +1 是这一行的换行符
-        if used + size > limit:
+        if used + size > avail:
             break
         kept.append(line)
         used += size
     if not kept:
         # 极端情况：第一行自己就超长（比如一条超长 URL），退回硬切
         return raw[:limit].decode("utf-8", "ignore")
-    kept.append("…（内容过长，其余已截断）")
+    kept.append(tail)
     return "\n".join(kept)
 
 

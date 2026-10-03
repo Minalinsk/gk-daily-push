@@ -178,7 +178,12 @@ def build_messages(items, notice=""):
                 f"[{_clean_title(it['title'])}]({it['url']})")
                for it in items]
 
-    budget = config.MSG_BUDGET - _MSG_HEADER_RESERVE
+    # notice（源健康度告警）只挂在**最后一条**消息上，它自己可能有 150 多字节，
+    # 所以必须一起预留 —— 只按 _MSG_HEADER_RESERVE 算的话，
+    # 最后那一条会顶破 MSG_BUDGET（企微的 4096 上限虽然还兜得住，
+    # 但预算是用来约束自己的，模型本身得自洽）。
+    reserve = _MSG_HEADER_RESERVE + (len(notice.encode("utf-8")) + 1 if notice else 0)
+    budget = config.MSG_BUDGET - reserve
     pages, cur, cur_source = [], {"lines": [], "used": 0, "count": 0}, None
 
     for src, line in entries:
