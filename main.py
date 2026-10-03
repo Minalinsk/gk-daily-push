@@ -8,6 +8,7 @@
 任何环节出错都会推一条失败通知，不会静默死掉。
 """
 
+import calendar
 import datetime
 import logging
 import re
@@ -30,6 +31,42 @@ BJ_OFFSET = 8 * 3600   # 服务器跑在 UTC，消息里统一显示北京时间
 def bj_now():
     return time.gmtime(time.time() + BJ_OFFSET)
 
+
+def _epoch_of_bj_today(hhmm):
+    """北京"今天 HH:MM"对应的 UTC epoch；解析不出来返回 None。"""
+    try:
+        h, m = (int(x) for x in str(hhmm).split(":"))
+    except Exception:
+        return None
+    t = bj_now()                     # 北京的"现在"（拿它的年月日）
+    # 用北京的年月日 + 目标时分凑一个时刻，再减掉 8 小时偏移
+    return calendar.timegm((t.tm_year, t.tm_mon, t.tm_mday, h, m, 0, 0, 0, 0)) - BJ_OFFSET
+
+
+def _wait_until_bj(hhmm, max_wait=6 * 3600):
+    """等到北京时间的 HH:MM 再往下走；已经过了就直接返回。
+
+    为什么这个等待放在脚本里、而不是再加一个 job：两条消息共用同一次抓取；
+    而且 state 只由这一个进程提交，不会出现两个 job 抢着 push 的麻烦。
+    """
+    if not hhmm:
+        return
+    target = _epoch_of_bj_today(hhmm)
+    if target is None:
+        logging.warning("NEWS_AT_BJ 的值看不懂（%r），跳过等待", hhmm)
+        return
+    gap = target - time.time()
+    if gap <= 0:
+        logging.info("已过北京 %s，时政不再等待，直接发", hhmm)
+        return
+    if gap > max_wait:
+        # 保险：万一算出了隔天（或者 cron 被改乱了），别在这儿干等几小时
+        logging.warning("距北京 %s 还有 %.0f 分钟，超过 %.0f 分钟上限，不等了",
+                        hhmm, gap / 60, max_wait / 60)
+        return
+    logging.info("等到北京 %s 再推时政（还需 %.0f 分 %.0f 秒）", hhmm, gap // 60, gap % 60)
+    time.sleep(gap)
+    logging.info("到点，继续推时政")
 
 
 def _clean_title(title):
@@ -378,6 +415,13 @@ def main():
 
         # 先推日程提醒（公告的时间表，一天只推一条），再推时政清单
         _schedule_step(all_items, state, send=config.PUSH_SCHEDULE)
+
+        # 两条消息错开：日程先发，时政等到 config.NEWS_AT_BJ 那个点再发。
+        # 抓取已经在上面做完了，时政用的还是同一批数据 —— 隔着半小时，
+        # "前一天的要闻"不会因为这个有差别，没必要再抓一遍。
+        # DRY_RUN 不等：预览没必要干等半小时。
+        if not config.DRY_RUN:
+            _wait_until_bj(config.NEWS_AT_BJ)
 
         # 首次运行只建索引，避免一口气把几百条糊你脸上
         if first_run and not config.FIRST_RUN_PUSH:
