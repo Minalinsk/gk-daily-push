@@ -92,11 +92,11 @@ def _pub_date(it):
 
 
 def _news_target_day():
-    """这次清单该看哪一天：早上（<12 点）看前一天，晚上看当天。
+    """这次清单该看哪一天。
 
-    一天跑两次，两次的内容才不重复：
-      早上（06:07）那次 = 昨晚的新闻；晚上（18:07）那次 = 白天的新闻。
-    config.NEWS_DAY 设了 "today"/"yesterday" 就按它来（手动跑或想固定时用）。
+    正常是**前一天**（凌晨运行时，当天还几乎没有稿子）。
+    config.NEWS_DAY 设了 "today"/"yesterday" 就按它来 —— workflow 的定时那次固定给
+    "yesterday"；手动触发给 "auto"，才走下面这条按北京时间猜的兜底逻辑。
     """
     today = exam_dates.bj_today()
     if config.NEWS_DAY == "today":
@@ -114,7 +114,7 @@ def _news_day_label():
 
 
 def pick_news(all_items, seen_set):
-    """每日资讯清单：只挑时政源里目标那一天的条目（早上看昨天、晚上看今天）。
+    """每日资讯清单：只挑时政源里目标那一天的条目（正常就是前一天）。
 
     某个源那一天没更新（一条都挑不出来）时，退而取它最新的几条，
     免得整个源缺席。**公告不在这条清单里**——公告统一走日程提醒。
@@ -148,44 +148,78 @@ def pick_news(all_items, seen_set):
     return topics.tag_all(final)
 
 
-def build_message(items, notice=""):
-    """组装「每日时政」正文。返回 (正文, 真正装进去的条数)。
+# 一条消息里留给标题行的字节（标题可能带 "(1/2)" 后缀，后面还要跟一个空行）
+_MSG_HEADER_RESERVE = 90
 
-    第二个返回值是给调用方记账用的：消息超长被截掉的条目**不能**算"已推送"，
-    否则它们会永久留在索引里、下次也挑不出来，等于悄悄丢了（见 main()）。
 
-    notice 是可选的一行附注（目前用来提示哪些源连续抓不到），放在最后的摘要上方。
-    它不参与上面的长度预算 —— MSG_BUDGET 和企业微信 4096 的上限之间留了余量。
+def _page_header(page, total, now):
+    """第 page/total 条消息的标题行。"""
+    date_str = time.strftime("%m-%d", now)
+    if total <= 1:
+        return f"**📰 {config.REPORT_TITLE} · {date_str}**"
+    return f"**📰 {config.REPORT_TITLE} · {date_str}（{page}/{total}）**"
+
+
+def build_messages(items, notice=""):
+    """组装「每日时政」，**超长就拆成多条**。返回 [(正文, 本条包含的条数), ...]。
+
+    以前的做法是超长就从尾部截断，被截掉的条目还**不能**记进索引
+    （记了就等于永久丢内容）。现在改成拆条：每条都在企业微信的长度上限内，
+    内容一条不丢；返回值里的"条数"是给调用方记账的 —— 只有真发出去的那几条才记账。
+
+    企业微信 markdown 正文上限 4096 字节，这里按 config.MSG_BUDGET 分页，
+    余量留给标题行、摘要行和 notice。
     """
     now = bj_now()
-    date_str = time.strftime("%m-%d", now)
-    lines = [f"**📰 {config.REPORT_TITLE} · {date_str}**", ""]
 
-    current, shown = None, 0
-    budget = config.MSG_BUDGET
-    used = len("\n".join(lines).encode("utf-8"))
-    for it in items:
-        block = []
-        if it.get("source", "") != current:
-            current = it["source"]
-            block.append(f"**{current}**")
-        block.append(f"- {_tag_prefix(it.get('topic', ''))}"
-                     f"[{_clean_title(it['title'])}]({it['url']})")
+    # 先摊平成 (源名, 正文行) —— 分页跨了源时，新的一页要重新打一次源标题。
+    entries = [(it.get("source", ""),
+                f"- {_tag_prefix(it.get('topic', ''))}"
+                f"[{_clean_title(it['title'])}]({it['url']})")
+               for it in items]
 
-        chunk = len(("\n".join(block) + "\n").encode("utf-8"))
-        if used + chunk > budget:
-            logging.warning("消息接近长度上限，后面的条目被截断（共 %d 条未展示）",
-                            len(items) - shown)
-            break
-        lines.extend(block)
-        used += chunk
-        shown += 1
+    budget = config.MSG_BUDGET - _MSG_HEADER_RESERVE
+    pages, cur, cur_source = [], {"lines": [], "used": 0, "count": 0}, None
 
-    lines.append("")
-    if notice:
-        lines.append(notice)
-    lines.append(f"共 {shown} 条 · {time.strftime('%H:%M', now)} 推送")
-    return "\n".join(lines), shown
+    for src, line in entries:
+        block = ([f"**{src}**"] if src != cur_source else []) + [line]
+        size = len(("\n".join(block) + "\n").encode("utf-8"))
+
+        if cur["lines"] and cur["used"] + size > budget:
+            # 这一页装不下了：先收下它，另起一页（新页要重新写源标题）
+            pages.append(cur)
+            cur = {"lines": [], "used": 0, "count": 0}
+            block = [f"**{src}**", line]
+            size = len(("\n".join(block) + "\n").encode("utf-8"))
+
+        if size > budget and not cur["lines"]:
+            # 单条自己就超预算（超长标题 + 超长 URL 的极端情况）：仍然放进去，
+            # 交给 push._truncate 按行兜底，总比直接丢掉强。
+            logging.warning("单条内容超过单页预算，仍放入本条消息：%s", line[:40])
+        cur["lines"].extend(block)
+        cur["used"] += size
+        cur["count"] += 1
+        cur_source = src
+
+    if cur["lines"] or not pages:
+        pages.append(cur)
+
+    total = len(pages)
+    total_items = sum(p["count"] for p in pages)
+    out = []
+    for idx, page in enumerate(pages, 1):
+        lines = [_page_header(idx, total, now), ""]
+        lines.extend(page["lines"])
+        if idx == total:
+            lines.append("")
+            if notice:
+                lines.append(notice)
+            lines.append(f"共 {total_items} 条 · {time.strftime('%H:%M', now)} 推送")
+        out.append(("\n".join(lines), page["count"]))
+
+    if total > 1:
+        logging.info("内容较长，已拆成 %d 条消息发送（合计 %d 条）", total, total_items)
+    return out
 
 
 def _failure_notice(health, threshold=2):
@@ -232,12 +266,11 @@ def _send(text, is_success=True, tag="消息"):
 def _schedule_step(all_items, state, send=True):
     """抓公告正文、抽关键时间点，然后推一条「考试日程提醒」。
 
-    **一天只提醒一遍，早上那条（06:07）**，规矩是两条：
+    **一天只提醒一遍**，规矩是两条：
       ① 发过就不再发：state["last_schedule"] 记着上次发的是哪一天（北京时间），
-         同一天再跑（手动触发、cron 抖动重跑）都会跳过；
-      ② 早上的那次负责发（send=True）；晚上的那次（send=False）平时什么都不做，
-         只有在"今天一次都没发出去"时才补一条——早上整个任务挂了的话，
-         晚上补一条总比当天完全没有提醒好。
+         同一天再跑（手动触发、重跑）都会跳过；
+      ② 平时只有定时那次负责发（send=True）；万一整天都没发出去，
+         下一次运行（send=False）会补一条 —— 总比当天完全没有提醒好。
     这一块独立于"只推新的"逻辑：日历是累积的，今天没有新公告也会照常提醒。
     出错不影响主流程。
     """
@@ -263,17 +296,26 @@ def _schedule_step(all_items, state, send=True):
             logging.info("今天的日程提醒已经发过了，本次跳过（日历照常更新）")
             return
         if not send:
-            logging.info("今天还没发过日程提醒，本次补发一条（平时晚上是不发的）")
+            logging.info("今天还没发过日程提醒，本次补发一条")
 
-        msg = exam_dates.build_reminder(store)
-        if not msg:
+        msgs = exam_dates.build_reminders(store)
+        if not msgs:
             logging.info("日历里还没有写明了时间的考试公告")
             return
-        ok = _send(msg, is_success=True, tag="日程提醒")
+        # 超长会拆成多条，逐条发。任何一条失败就停在那儿、本次不记账 ——
+        # 下次运行会**整体重发**，不会出现"只发出去半截"的状态。
+        ok = True
+        for i, body in enumerate(msgs, 1):
+            tag = "日程提醒" if len(msgs) == 1 else "日程提醒%d/%d" % (i, len(msgs))
+            if not _send(body, is_success=True, tag=tag):
+                ok = False
+                logging.warning("日程提醒第 %d/%d 条发送失败，本次不记账，下次整体重发",
+                                i, len(msgs))
+                break
         if ok and not config.DRY_RUN:
-            # 只有真发出去了才记账：发送失败的话，下一轮（晚上那次）会补发
+            # 只有真发出去了才记账：发送失败的话，下一轮会补发
             state["last_schedule"] = today
-            logging.info("日程提醒已发出，今天不再重复提醒")
+            logging.info("日程提醒已发出（%d 条消息），今天不再重复提醒", len(msgs))
     except Exception as exc:
         logging.error("考试日程模块出错（已忽略）：%s", exc)
         logging.error("堆栈：\n%s", traceback.format_exc())
@@ -291,7 +333,7 @@ def main():
             f"**🐾 {config.REPORT_TITLE} · 通道测试**\n"
             f"看到这条说明企业微信机器人配置成功。\n"
             f"当前配置了 {len(config.SOURCES)} 个抓取源，"
-            f"每天北京时间 06:07 / 18:07 自动推送（随机延迟 0~20 分钟）。",
+            f"每天北京时间 02:30 自动触发（随机延迟 0~15 分钟）。",
             is_success=True,
         )
         logging.info("测试推送结果：%s", "成功" if ok else "失败")
@@ -334,7 +376,7 @@ def main():
         new_items = pick_news(all_items, seen_set)
         logging.info("时政里没推过的 %d 条（看的是 %s）", len(new_items), _news_day_label())
 
-        # 先推日程提醒（公告的时间表，一天只推早上那一条），再推时政清单
+        # 先推日程提醒（公告的时间表，一天只推一条），再推时政清单
         _schedule_step(all_items, state, send=config.PUSH_SCHEDULE)
 
         # 首次运行只建索引，避免一口气把几百条糊你脸上
@@ -365,23 +407,27 @@ def main():
             _send(body, is_success=True)
             return True
 
-        msg, shown = build_message(new_items, notice)
-        ok = _send(msg, is_success=True, tag="时政清单")
+        pages = build_messages(new_items, notice)
+        sent, ok = 0, True
+        for i, (body, cnt) in enumerate(pages, 1):
+            tag = "时政清单" if len(pages) == 1 else "时政清单%d/%d" % (i, len(pages))
+            if not _send(body, is_success=True, tag=tag):
+                ok = False
+                logging.warning("时政清单第 %d/%d 条发送失败，停在已成功的前 %d 条",
+                                i, len(pages), sent)
+                break
+            sent += cnt
 
-        if ok and not config.DRY_RUN:
-            # 只把**真正出现在消息里**的条目记进索引。build_message 里的条数
-            # 受 MSG_BUDGET 约束，被截掉的那几条要是也记了账，它们就再也不会
-            # 被挑出来（索引里已经有了），等于静默丢失。
-            state["seen"] = seen + [it["url"] for it in new_items[:shown]]
-            if shown < len(new_items):
-                logging.warning("有 %d 条因超长没进消息，本次不记入索引，下次还会推",
-                                len(new_items) - shown)
-            logging.info("已记录 %d 条新链接进索引", shown)
-        elif config.DRY_RUN:
+        if config.DRY_RUN:
             logging.info("DRY_RUN：这 %d 条不记入索引，下次仍会推出", len(new_items))
         else:
-            # 推送失败就不记索引，下次还会重试，不会丢内容
-            logging.warning("推送未成功，本次条目不记入索引，下次会重推。")
+            # 发出去多少记多少：没发出去的那部分下次还会推，不会丢内容。
+            # （分页是按顺序发的，所以前 sent 条就是已经成功送达的那些。）
+            if sent:
+                state["seen"] = seen + [it["url"] for it in new_items[:sent]]
+                logging.info("已记录 %d 条新链接进索引", sent)
+            if not ok:
+                logging.warning("有消息没发出去，没发的那部分下次会重推。")
 
         save_state(state)
         return ok

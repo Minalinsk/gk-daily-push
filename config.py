@@ -242,9 +242,9 @@ NEWS_FALLBACK_MAX = 3   # 兜底时每个源最多取几条
 # 不想要就改成 False。
 TOPIC_TAGS = True
 
-# 一天跑两次：早上那次看「前一天」（昨晚的新闻），晚上那次看「当天」。
-# workflow 里按 cron 直接把 NEWS_DAY 设成 "yesterday" / "today"（见 daily.yml），
-# 这样就算排队晚了、跨过中午 12 点，早上那次也不会被误切成"今天"。
+# 每天跑一次，看的是「前一天」（凌晨运行时，当天还几乎没有稿子）。
+# workflow 里按 cron 直接把 NEWS_DAY 设成 "yesterday"（见 daily.yml），
+# 而不是靠"现在几点"去猜 —— 排队晚点可能跨过中午 12 点，靠猜会把内容切错。
 # 手动触发时给的是 "auto"，才走下面这条按北京时间猜的兜底逻辑。
 # 想固定成某一天，把 NEWS_DAY 设成 "today" 或 "yesterday"（环境变量）。
 NEWS_WINDOW_AUTO = True
@@ -333,8 +333,7 @@ DRY_RUN = os.getenv("DRY_RUN", "0") == "1"
 # （不抓取、不动索引。Actions 页面手动 Run workflow 时勾选「只发测试消息」即可）
 TEST_PUSH = os.getenv("TEST_PUSH", "0") == "1"
 
-# 日程提醒要不要发。**一天只发一条，早上（06:07）那条**：
-#   晚上（18:07）那次会置成 0 —— 它只更新日历，不重发时间表；
-#   唯一例外是"今天一次都没发出去"（早上那次整个任务挂了），它才补一条。
-# 真正的"一天一次"由 state 里的 last_schedule 保证，手动多跑几次也不会重复。
+# 日程提醒要不要发。**一天只发一条**（现在每天只跑一次，所以恒为 1）。
+# 真正的"一天一次"由 state 里的 last_schedule 保证 ——
+# 手动多跑几次、或定时那次失败后重跑，都不会重复发。
 PUSH_SCHEDULE = os.getenv("PUSH_SCHEDULE", "1") == "1"

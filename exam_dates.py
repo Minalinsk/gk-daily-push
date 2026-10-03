@@ -498,7 +498,7 @@ def parse_item(it, store, today=None, plain=None):
 
     # 解析算法换过之后重新解析时，先把这篇公告在日历里的旧时间点摘掉 ——
     # 不然新旧两套结论会同时躺着（比如旧的「缴费止 11月2日」和新的「缴费止 10月16日」，
-    # 而 build_reminder 取最晚的那个，等于白改）。平时是空操作。
+    # 而 build_reminders 取最晚的那个，等于白改）。平时是空操作。
     store["events"] = [ev for ev in store["events"] if ev.get("url") != url]
 
     for ev in events:
@@ -541,6 +541,10 @@ KEY_KINDS = ("报名开始", "报名截止", "准考证开始", "准考证截止
 # 「最近几天」那块里同一天撞了多个事件时，按这个顺序挑一个显示
 _KEY_ORDER = ("笔试", "面试", "准考证截止", "准考证开始", "准考证打印",
               "报名截止", "报名开始")
+
+# 每条消息里给标题行留的位置。标题形如「**⏰ 考试日程提醒 · 10-04（2/3）**」，
+# 拆成多条时会带 "(n/m)" 后缀，所以按最长的情况预留。
+_TITLE_RESERVE = 90
 
 # 同一篇公告里**同名事件有多条**时怎么取值（多阶段报名、多批缴费/审查很常见）：
 # 截止类取**最晚**那个，其余（开始类）取最早的。早先一律"只留第一个"，
@@ -674,14 +678,17 @@ def _timeline(dates):
     return " ｜ ".join(parts[:4])
 
 
-def build_reminder(store):
-    """生成提醒文案（公告维度）；一条都凑不出来时返回 None。
+def build_reminders(store):
+    """生成「考试日程提醒」，**超长就拆成多条**。返回消息正文列表；凑不出来时返回空列表。
 
     三块：
       ① 🔥 报名进行中   —— 报到名的（按截止日排序，最急的在前）
       ② ⏳ 最近 N 天    —— 马上要动的事（报名开始/截止、准考证、笔试、面试）
       ③ 📋 其它已定时间的公告 —— 只要公告里写明了报名或考试时间，都列在这儿，
                                  不再因为"离得远"就不提
+
+    注意每个板块内部还有"最多列几条"的上限（config.REMIND_*_MAX），超出的会折叠成
+    "另有 N 条" —— 那是**防刷屏的内容策略**，跟"一条消息装不下"是两回事，不要混淆。
     """
     today = bj_today()
 
@@ -751,23 +758,29 @@ def build_reminder(store):
             other.append((future[0], url, title, _timeline(dates)))
 
     if not (ongoing or upcoming or other):
-        return None
+        return []
 
     ongoing.sort(key=lambda x: x[0])
     upcoming.sort(key=lambda x: (x[0], x[2]))
     other.sort(key=lambda x: x[0])
 
-    lines = ["**⏰ 考试日程提醒 · %s**" % today.strftime("%m-%d"), ""]
-    used = len("\n".join(lines).encode("utf-8"))
+    # ---- 组装：装不下就**翻页**，不再截断丢掉 ----
+    # 以前是超过预算就 return False、调用方 break —— 结果就是"另有 N 条"，
+    # 内容被折叠掉。现在改成开新的一页，最后拼成多条消息发出去。
+    head = "**⏰ 考试日程提醒 · %s**" % today.strftime("%m-%d")
+    budget = config.MSG_BUDGET - _TITLE_RESERVE
+    pages, used = [[]], [0]
 
     def add(text):
-        """按字节预算加行；超了就返回 False，调用方自己收尾。"""
-        nonlocal used
+        """往当前页加一行；装不下就翻页。返回这一行是否放得下。"""
         size = len(text.encode("utf-8")) + 1
-        if used + size > config.MSG_BUDGET:
-            return False
-        lines.append(text)
-        used += size
+        if used[-1] and used[-1] + size > budget:
+            pages.append([])
+            used.append(0)
+        if used[-1] + size > budget:
+            return False          # 空页都装不下（极端情况），放弃这一行
+        pages[-1].append(text)
+        used[-1] += size
         return True
 
     if ongoing:
@@ -814,9 +827,22 @@ def build_reminder(store):
             add("- …另有 %d 条" % (len(other) - n))
         add("")
 
+    # 把每一页拼成完整消息。摘要行只挂在最后一条上。
     # 这里的"共 N 条"是三个板块加起来的总数（含被折叠的），
-    # 跟上面每个板块括号里的数字对得上。
-    lines.append("共 %d 条 · %s 更新"
-                 % (len(ongoing) + len(upcoming) + len(other),
-                    time.strftime("%H:%M", time.gmtime(time.time() + 8 * 3600))))
-    return "\n".join(lines)
+    # 跟每个板块括号里的数字对得上。
+    total_events = len(ongoing) + len(upcoming) + len(other)
+    summary = "共 %d 条 · %s 更新" % (
+        total_events, time.strftime("%H:%M", time.gmtime(time.time() + 8 * 3600)))
+
+    total_pages = len(pages)
+    out = []
+    for i, plines in enumerate(pages, 1):
+        title = head if total_pages == 1 else head[:-2] + "（%d/%d）**" % (i, total_pages)
+        body = [title, ""] + plines
+        if i == total_pages:
+            body.append(summary)
+        out.append("\n".join(body))
+
+    if total_pages > 1:
+        logging.info("日程提醒较长，已拆成 %d 条消息（合计 %d 条）", total_pages, total_events)
+    return out

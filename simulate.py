@@ -70,22 +70,31 @@ def main():
     if not args.no_schedule:
         store = exam_dates.load_store()
         n = exam_dates.update_calendar(all_items, store)
-        reminder = exam_dates.build_reminder(store)
-        print("【日程】新解析 %d 篇公告，日历里可提醒 %d 条" % (n, len(store.get("events", []))))
-        out.append("────────── 消息①  ⏰ 考试日程提醒（只在早上推）──────────")
-        out.append(reminder or "（日历里暂时没有写明了时间的考试公告）")
+        reminders = exam_dates.build_reminders(store)
+        print("【日程】新解析 %d 篇公告，日历里可提醒 %d 条，拆成 %d 条消息"
+              % (n, len(store.get("events", [])), len(reminders)))
+        out.append("────────── 消息①  ⏰ 考试日程提醒 ──────────")
+        if reminders:
+            for i, body in enumerate(reminders, 1):
+                if len(reminders) > 1:
+                    out.append("—— 第 %d/%d 条 ——" % (i, len(reminders)))
+                out.append(body)
+        else:
+            out.append("（日历里暂时没有写明了时间的考试公告）")
         out.append("")
 
     # ---- ② 每日时政 ----
     news = main.pick_news(all_items, seen)
     print("【时政】目标日 %s（%s），本次 %d 条"
           % (main._news_target_day(), main._news_day_label(), len(news)))
-    out.append("────────── 消息②  📰 %s（早晚各一条）──────────" % config.REPORT_TITLE)
-    text_news, shown = main.build_message(news)
-    out.append(text_news)
-    if shown < len(news):
-        print("【注意】有 %d 条超出长度预算没进消息（它们不会被记进索引）"
-              % (len(news) - shown))
+    out.append("────────── 消息②  📰 %s ──────────" % config.REPORT_TITLE)
+    pages = main.build_messages(news)
+    if len(pages) > 1:
+        print("【注意】内容较长，会拆成 %d 条消息发送" % len(pages))
+    for i, (body, _cnt) in enumerate(pages, 1):
+        if len(pages) > 1:
+            out.append("—— 第 %d/%d 条 ——" % (i, len(pages)))
+        out.append(body)
 
     text = "\n".join(out)
     print()
