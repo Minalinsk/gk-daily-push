@@ -79,7 +79,11 @@ def main():
     print("【时政】目标日 %s（%s），本次 %d 条"
           % (main._news_target_day(), main._news_day_label(), len(news)))
     out.append("────────── 消息②  📰 %s（早晚各一条）──────────" % config.REPORT_TITLE)
-    out.append(main.build_message(news))
+    text_news, shown = main.build_message(news)
+    out.append(text_news)
+    if shown < len(news):
+        print("【注意】有 %d 条超出长度预算没进消息（它们不会被记进索引）"
+              % (len(news) - shown))
 
     text = "\n".join(out)
     print()

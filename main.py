@@ -149,11 +149,18 @@ def pick_news(all_items, seen_set):
 
 
 def build_message(items):
+    """组装「每日时政」正文。返回 (正文, 真正装进去的条数)。
+
+    第二个返回值是给调用方记账用的：消息超长被截掉的条目**不能**算"已推送"，
+    否则它们会永久留在索引里、下次也挑不出来，等于悄悄丢了（见 main()）。
+    """
     now = bj_now()
     date_str = time.strftime("%m-%d", now)
     lines = [f"**📰 {config.REPORT_TITLE} · {date_str}**", ""]
 
-    current, shown, budget = None, 0, config.MSG_BUDGET
+    current, shown = None, 0
+    budget = config.MSG_BUDGET
+    used = len("\n".join(lines).encode("utf-8"))
     for it in items:
         block = []
         if it.get("source", "") != current:
@@ -162,17 +169,18 @@ def build_message(items):
         block.append(f"- {_tag_prefix(it.get('topic', ''))}"
                      f"[{_clean_title(it['title'])}]({it['url']})")
 
-        chunk = "\n".join(block) + "\n"
-        if len("\n".join(lines).encode("utf-8")) + len(chunk.encode("utf-8")) > budget:
+        chunk = len(("\n".join(block) + "\n").encode("utf-8"))
+        if used + chunk > budget:
             logging.warning("消息接近长度上限，后面的条目被截断（共 %d 条未展示）",
                             len(items) - shown)
             break
         lines.extend(block)
+        used += chunk
         shown += 1
 
     lines.append("")
     lines.append(f"共 {shown} 条 · {time.strftime('%H:%M', now)} 推送")
-    return "\n".join(lines)
+    return "\n".join(lines), shown
 
 
 def _tag_prefix(topic):
@@ -309,12 +317,18 @@ def main():
                   is_success=True)
             return True
 
-        msg = build_message(new_items)
+        msg, shown = build_message(new_items)
         ok = _send(msg, is_success=True, tag="时政清单")
 
         if ok and not config.DRY_RUN:
-            state["seen"] = seen + [it["url"] for it in new_items]
-            logging.info("已记录 %d 条新链接进索引", len(new_items))
+            # 只把**真正出现在消息里**的条目记进索引。build_message 里的条数
+            # 受 MSG_BUDGET 约束，被截掉的那几条要是也记了账，它们就再也不会
+            # 被挑出来（索引里已经有了），等于静默丢失。
+            state["seen"] = seen + [it["url"] for it in new_items[:shown]]
+            if shown < len(new_items):
+                logging.warning("有 %d 条因超长没进消息，本次不记入索引，下次还会推",
+                                len(new_items) - shown)
+            logging.info("已记录 %d 条新链接进索引", shown)
         elif config.DRY_RUN:
             logging.info("DRY_RUN：这 %d 条不记入索引，下次仍会推出", len(new_items))
         else:

@@ -145,14 +145,19 @@ SOURCES = [
     {
         "name": "新华网·时政",
         "kind": "news",   # announce=招考公告源（要过时间检查）/ news=时政源
-        "url": "http://www.news.cn/politics/",
+        # ⚠️ 2026-10-03：原来写的是 http://。查推送索引发现新华网已经连续
+        # 两天多一条都没进来（其它 5 个时政源都正常），而它的列表页本身是有
+        # 09-30 的稿子的 —— 说明抓取那一步就失败了（本地跑也是 403）。
+        # 先统一改成 https 试试（政府/门户站的 CDN 常对明文 http 更凶），
+        # 要是还不行就去 Actions 日志里搜「源【新华网·时政】抓取失败」，看具体报什么。
+        "url": "https://www.news.cn/politics/",
         "pattern": r"news\.cn/politics/\d{8}/\w+/c\.html",
         "max": 30,
     },
     {
         "name": "新华网·法治",
         "kind": "news",   # announce=招考公告源（要过时间检查）/ news=时政源
-        "url": "http://www.news.cn/legal/",
+        "url": "https://www.news.cn/legal/",
         "pattern": r"news\.cn/legal/\d{8}/\w+/c\.html",
         "max": 20,
         "max_age_days": 7,

@@ -77,6 +77,18 @@ def _recruit_ok(frag):
     return "报名" in _RECRUIT_FALSE_RE.sub("", frag)
 
 
+# 「报名与资格初审时间：…」「报名及资格初审」这种把报名和资格审查写成同一句的写法，
+# KINDS 的优先级规则会把整段判成「资格审查」（它排在报名前面），
+# 于是真正要用的报名窗口反而丢了——实测海南定安、甘肃教育厅两条公告都这样漏了报名时间。
+# 所以凡是"报名"和"资格审查"紧挨着出现的片段，除了资格审查，再补一趟报名解析。
+# 要求两者之间只有 与/及/和/、 这类连接符：`网上报名并通过资格审查后…`
+# 中间隔了"通过"，说的是另一件事，不该算同一个时间窗。
+_PAIR_RE = re.compile(
+    r"(?:报名[^，。；\n]{0,6}?(?:资格初审|资格审查|资格审核)"
+    r"|(?:资格初审|资格审查|资格审核)[^，。；\n]{0,6}?报名)"
+)
+
+
 # ============================== 工具 ==============================
 
 def _plain_text(text):
@@ -267,9 +279,25 @@ def parse_schedule(title, plain, default_year, url=""):
                 continue
             for name, d in _assign(kind, dates, frag):
                 events.append({"kind": name, "date": d.isoformat(), "raw": frag[:80]})
+            # 「报名与资格初审时间：…」这类片段会被判成资格审查，报名窗口得补回来
+            if kind == "资格审查" and _recruit_ok(frag) and _PAIR_RE.search(frag):
+                for name, d in _assign("报名", dates, frag):
+                    events.append({"kind": name, "date": d.isoformat(), "raw": frag[:80]})
 
-    # 片段解析漏掉的（关键词和日期被句号切开），再粗糙地补一遍
-    events.extend(_window_pass(plain, default_year))
+    # 片段解析漏掉的（关键词和日期被句号切开），再粗糙地补一遍。
+    # 但这是"兜底"，不该覆盖片段法更明确的结论：同一个日期如果已经被片段法
+    # 认成另一种事件了，就丢掉窗口法的这一条。实测这样能去掉
+    #   ·「缴费截止 11月2日」——那其实是"缴费成功人员于11月2日打印准考证"，
+    #      而且它会把真正的缴费截止（10月16日）顶掉（_TAKE_LATEST 取最晚）；
+    #   ·「资格审查截止 11月13日」——那其实是准考证的打印截止时间。
+    frag_dates = {}
+    for ev in events:
+        frag_dates.setdefault(ev["date"], set()).add(ev["kind"])
+    for ev in _window_pass(plain, default_year):
+        if ev["date"] in frag_dates and frag_dates[ev["date"]] != {ev["kind"]}:
+            logging.debug("窗口法猜出的 %s %s 与片段法结论冲突，丢弃", ev["kind"], ev["date"])
+            continue
+        events.append(ev)
 
     # 同一篇里同名事件只留最早提到的那个
     out, seen = [], set()
@@ -283,6 +311,13 @@ def parse_schedule(title, plain, default_year, url=""):
 
 
 # ============================== 日历存取 ==============================
+
+# 正文解析算法的版本号。**改了 parse_schedule / _window_pass / KINDS 这些解析逻辑
+# 就要 +1** —— 日历里的 parsed 表是"这篇公告已经解析过"的记号，解析算法换了之后
+# 老记号必须作废，否则旧结论会一直留在日历里（错的还是错的，不会自己变对）。
+# 见 update_calendar()。
+PARSER_VERSION = 2
+
 
 def load_store(path=None):
     path = path or config.SCHEDULE_FILE
@@ -387,6 +422,18 @@ def _candidates(all_items, store):
 
 def update_calendar(all_items, store):
     """抓公告正文、抽时间点、写进日历。返回新解析到日程的公告条数。"""
+    if store.get("parser") != PARSER_VERSION:
+        # 解析算法升级过 → 作废"已解析"的记号，让公告重新走一遍正文解析。
+        # parsed 清空、events 不动：旧时间点等每篇重解析时再一对一换掉（见 parse_item），
+        # 所以升级当天日历不会突然空掉。每轮只补 DETAIL_FETCH 篇，
+        # 最相关的（新的、近期的）排在最前，几轮之内就换完了。
+        old = len(store.get("parsed", {}))
+        if old:
+            logging.info("解析算法版本 %s -> %s：%d 篇公告的缓存作废，重新解析",
+                         store.get("parser"), PARSER_VERSION, old)
+        store["parsed"] = {}
+        store["parser"] = PARSER_VERSION
+
     picked = _candidates(all_items, store)[: config.DETAIL_FETCH]
     if not picked:
         logging.info("没有需要解析正文的公告")
@@ -439,6 +486,11 @@ def parse_item(it, store, today=None, plain=None):
     year = pub.tm_year if pub else today.year
     events = parse_schedule(title, plain, year, url)
     store["parsed"][url] = today.isoformat()
+
+    # 解析算法换过之后重新解析时，先把这篇公告在日历里的旧时间点摘掉 ——
+    # 不然新旧两套结论会同时躺着（比如旧的「缴费止 11月2日」和新的「缴费止 10月16日」，
+    # 而 build_reminder 取最晚的那个，等于白改）。平时是空操作。
+    store["events"] = [ev for ev in store["events"] if ev.get("url") != url]
 
     for ev in events:
         ev.update({"url": url, "title": title,

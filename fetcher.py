@@ -6,6 +6,7 @@
 教育频道甚至停在 2016 年），所以本项目直接抓网页。
 """
 
+import calendar
 import html as html_mod
 import logging
 import re
@@ -123,7 +124,10 @@ def extract_articles(page_url, text, pattern, limit, title_pattern=""):
             window = text[m.end(): m.end() + 500]
             tm = title_pat.search(window)
             if tm:
-                title = _clean(tm.group(1))
+                # title_pattern 忘了写捕获组时退回整个匹配（group(0)）——
+                # 直接 group(1) 会抛 IndexError，那是个纯配置笔误，
+                # 不该把整个任务打挂。
+                title = _clean(tm.group(1) if tm.lastindex else tm.group(0))
 
         if len(title) < 6 or not _CJK_RE.search(title):
             continue
@@ -184,7 +188,10 @@ def too_old(url, days):
     d = url_date(url)
     if d is None:
         return False          # 读不出日期就不拦，宁可多推也别漏
-    age = (time.time() - time.mktime(d)) / 86400
+    # 必须用 calendar.timegm 按 UTC 算：time.mktime 是按**本机时区**解释的，
+    # 同一份数据在本地（北京）和 Actions（UTC）会算出差 8 小时的年龄，
+    # 卡在边界上的条目两边结论不一致。
+    age = (time.time() - calendar.timegm(d)) / 86400
     return age > days
 
 
@@ -218,6 +225,12 @@ def fetch_source(src):
         )
     except re.error as exc:
         logging.error("源【%s】的 pattern 正则写错了：%s", name, exc)
+        return []
+    except Exception as exc:
+        # 兜底：一个源的配置写错（或页面结构怪）不该拖垮整个任务。
+        # 以前这里只接 re.error，别的异常会一路冒到 main，当天全部源都不推。
+        logging.error("源【%s】解析出错，已跳过本源：%s: %s",
+                      name, type(exc).__name__, exc)
         return []
 
     if not items:

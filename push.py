@@ -13,7 +13,8 @@ import urllib.request
 
 from config import WEWORK_MSG_TYPE, WEWORK_WEBHOOK
 
-MAX_BYTES = 4000  # 留点余量
+MAX_BYTES = 4000        # markdown 正文上限（企微 4096 字节，留点余量）
+MAX_BYTES_TEXT = 2000   # text 正文上限（企微只给 2048 字节，比 markdown 小一半）
 
 
 class PushError(Exception):
@@ -52,10 +53,12 @@ def push(content, is_success=True, webhook=None, msg_type=None):
 
     flag = "✅" if is_success else "❌"
     if msg_type == "text":
-        content = _truncate(f"{flag} {content}")
+        # ⚠️ text 类型的上限是 2048 字节，比 markdown 的 4096 小一半。
+        #    以前两种情况共用 4000，切成 text 之后长消息会被企微直接拒掉。
+        content = _truncate(f"{flag} {content}", MAX_BYTES_TEXT)
         payload = {"msgtype": "text", "text": {"content": content}}
     else:
-        content = _truncate(content)
+        content = _truncate(content, MAX_BYTES)
         payload = {"msgtype": "markdown", "markdown": {"content": content}}
 
     for attempt in range(3):
