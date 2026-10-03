@@ -58,9 +58,11 @@ def main():
     else:
         seen = set(load_state().get("seen", []))
 
-    all_items, failed = fetch_all(config.SOURCES)
+    all_items, failures = fetch_all(config.SOURCES)
     print("【抓取】%d 条候选，%d 个源（失败：%s）"
-          % (len(all_items), len(config.SOURCES), "、".join(failed) or "无"))
+          % (len(all_items), len(config.SOURCES), "、".join(failures) or "无"))
+    for _name, _reason in failures.items():
+        print("        · %s -> %s" % (_name, _reason))
 
     out = []
 

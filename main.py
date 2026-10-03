@@ -148,11 +148,14 @@ def pick_news(all_items, seen_set):
     return topics.tag_all(final)
 
 
-def build_message(items):
+def build_message(items, notice=""):
     """组装「每日时政」正文。返回 (正文, 真正装进去的条数)。
 
     第二个返回值是给调用方记账用的：消息超长被截掉的条目**不能**算"已推送"，
     否则它们会永久留在索引里、下次也挑不出来，等于悄悄丢了（见 main()）。
+
+    notice 是可选的一行附注（目前用来提示哪些源连续抓不到），放在最后的摘要上方。
+    它不参与上面的长度预算 —— MSG_BUDGET 和企业微信 4096 的上限之间留了余量。
     """
     now = bj_now()
     date_str = time.strftime("%m-%d", now)
@@ -179,8 +182,32 @@ def build_message(items):
         shown += 1
 
     lines.append("")
+    if notice:
+        lines.append(notice)
     lines.append(f"共 {shown} 条 · {time.strftime('%H:%M', now)} 推送")
     return "\n".join(lines), shown
+
+
+def _failure_notice(health, threshold=2):
+    """把"连续失败"的源拼成一行提示；没有就返回空串。
+
+    阈值取 2 是有意的：偶尔一次的 403 / 超时很常见（对方站点抖一下），不值得惊动；
+    **连着两天以上**才说明这个源是真的坏了，得让人知道。
+    """
+    broken = []
+    for name, rec in (health or {}).items():
+        try:
+            n = int(rec.get("count", 0))
+        except (TypeError, ValueError):
+            n = 0
+        if n >= threshold:
+            broken.append((n, name))
+    if not broken:
+        return ""
+    broken.sort(key=lambda x: (-x[0], x[1]))
+    shown = "、".join("%s 连续 %d 天" % (name, n) for n, name in broken[:4])
+    more = "" if len(broken) <= 4 else " 等共 %d 个源" % len(broken)
+    return "⚠️ 抓取异常：%s%s" % (shown, more)
 
 
 def _tag_prefix(topic):
@@ -277,8 +304,27 @@ def main():
         first_run = not seen
         logging.info("索引里已有 %d 条历史记录", len(seen))
 
-        all_items, failed = fetch_all(config.SOURCES)
+        all_items, failures = fetch_all(config.SOURCES)
         logging.info("共抓到 %d 条候选", len(all_items))
+
+        # ---- 源健康度 ----
+        # 以前源失败只在日志里留一行，于是"山西两个源全挂、中公一直 403"这种
+        # 持续好几天的故障，谁都没发现（日志是没人天天翻的）。
+        # 现在把"连续失败"记进 state，连续 2 天以上就写进推送消息里。
+        today_str = exam_dates.bj_today().isoformat()
+        health = state.setdefault("source_health", {})
+        for name in list(health):
+            if name not in failures:
+                del health[name]                  # 恢复了就清零
+        for name, reason in failures.items():
+            rec = health.setdefault(name, {})
+            if rec.get("last") != today_str:      # 同一天跑两次只算一天
+                rec["count"] = int(rec.get("count", 0)) + 1
+            rec["reason"] = reason
+            rec["last"] = today_str
+        notice = _failure_notice(health)
+        if notice:
+            logging.warning("源健康度：%s", notice)
 
         if not all_items:
             raise RuntimeError(
@@ -304,20 +350,22 @@ def main():
             else:
                 state["seen"] = seen + [it["url"] for it in all_new]
                 save_state(state)
-                _send(
-                    f"**✅ {config.REPORT_TITLE} 已就绪**\n"
-                    f"首次运行已建立索引（{len(all_new)} 条时政），从明天起只推新增内容。",
-                    is_success=True,
-                )
+                ready = (f"**✅ {config.REPORT_TITLE} 已就绪**\n"
+                         f"首次运行已建立索引（{len(all_new)} 条时政），从明天起只推新增内容。")
+                if notice:
+                    ready += f"\n\n{notice}"
+                _send(ready, is_success=True)
             return True
 
         if not new_items:
             save_state(state)  # 内容没变的话它不会写盘，也就不会产生提交
-            _send(f"**📭 {config.REPORT_TITLE}**\n{_news_day_label()}没有新的时政内容。",
-                  is_success=True)
+            body = f"**📭 {config.REPORT_TITLE}**\n{_news_day_label()}没有新的时政内容。"
+            if notice:
+                body += f"\n\n{notice}"
+            _send(body, is_success=True)
             return True
 
-        msg, shown = build_message(new_items)
+        msg, shown = build_message(new_items, notice)
         ok = _send(msg, is_success=True, tag="时政清单")
 
         if ok and not config.DRY_RUN:
@@ -336,8 +384,6 @@ def main():
             logging.warning("推送未成功，本次条目不记入索引，下次会重推。")
 
         save_state(state)
-        if failed:
-            logging.warning("（本次这些源没数据：%s）", "、".join(failed))
         return ok
 
     except Exception as exc:

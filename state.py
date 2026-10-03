@@ -43,15 +43,18 @@ def save_state(state, path=None):
         seen = seen[-config.STATE_MAX:]
     state["seen"] = seen
 
-    # 只有时间戳变了、内容一模一样，就不写盘。
+    # 内容和上次一模一样时就不写盘（last_run 也一并留在上次的值）。
     # 不写盘 → 工作区没变化 → 工作流那步就不用提交，
     # 免得仓库一天平白多出两条没意义的提交（保活交给 keepalive.yml）。
+    # ⚠️ 所以 last_run 的语义是「最后一次**内容有变化**的运行时刻」，
+    #    不是「最后一次运行时刻」—— 连着几天没有新内容时它会停在原地，看日志别误会。
     if os.path.exists(path):
         try:
             with open(path, "r", encoding="utf-8") as fp:
                 old = json.load(fp)
             if isinstance(old, dict) and _fingerprint(old) == _fingerprint(state):
-                logging.info("索引内容没变化，跳过写盘")
+                logging.info("索引内容没变化，跳过写盘（last_run 保持 %s）",
+                             old.get("last_run") or "-")
                 return
         except Exception:
             pass

@@ -36,9 +36,9 @@ name: gk-daily-push
 #         最坏晚点 7.6h 时仍有 2.4h 余量，能覆盖「晚点 ≤ 11.4 小时」；
 #         两个 job 各自最多只等 5 小时，离 6 小时硬上限还留 1 小时。
 #
-#   开跑前再叠一个 0-20 分钟随机，让到达时刻不固定成一个「机器特征」；
-#   但**如果这次已经迟到**（过了目标时刻），就跳过随机、立即发 ——
-#   少迟到一点是一点。
+#   开跑前再叠一个 0-20 分钟随机，让到达时刻不固定成一个「机器特征」。
+#   随机**算在同一个睡眠预算里**（不是额外叠加）：预算富余多少就抖多少，
+#   这样 job 时长有硬上界，不会顶到 timeout-minutes。
 #
 # ═══════════════════════════════════════════════════════════════════════
 # 改 cron 时记得同步改这四处（只改 cron 会跑偏）
@@ -114,11 +114,11 @@ jobs:
     needs: wait
     if: always()
     runs-on: ubuntu-22.04
-    # ⚠️ 超时必须覆盖「这一棒等待 + 随机 20 分 + 脚本耗时」。
-    #    早上：等 ≤4 小时；晚上：前 5 小时已被 wait 吃掉，本棒最多再等 5 小时。
-    #    再算上随机 20 分和脚本最坏耗时（约 1 小时），压在 5 小时 50 分以内，
-    #    离 GitHub 的 6 小时硬上限还留一点。
-    timeout-minutes: 350
+    # ⚠️ 超时必须覆盖「这一棒等待（含随机抖动）+ 脚本耗时」。
+    #    等待上限 MAX_WAIT=18000 秒（5 小时）**已经把随机算在预算里**，
+    #    所以最长 = 5 小时 + 脚本。358 是 GitHub 单 job 6 小时硬上限(360) 以内
+    #    能给到的最大值，留 2 分钟给 checkout 和收尾。
+    timeout-minutes: 358
 
     steps:
       # ⚠️ 版本别往回调：v4 / v5 声明的是 Node 20 运行时，
@@ -157,41 +157,38 @@ jobs:
             TARGET_UTC="10:07"     # 北京 18:07（晚上那次，第一棒已经等到 13:07）
             TARGET_BJ="18:07"
           fi
-          MAX_WAIT=19800           # 5 小时 30 分，超过就不等了
+          # ⚠️ 这个上限同时是本 job 的**总睡眠预算**，随机延迟也算在里面（见下面 room）。
+          #    15(18000 秒) 正好是「晚上第一棒 13:07 交棒 → 18:07 开跑」要等的时间。
+          #    它必须满足：MAX_WAIT + 脚本最坏耗时 ≤ timeout-minutes。
+          #    5 小时 + 脚本，压在 358 分钟以内。
+          #    （以前随机延迟是**独立一步、叠加**在睡眠之上的，最坏
+          #      5.5h + 20min = 5h50m，再算上脚本就会把 350 分钟的 timeout 顶爆。）
+          MAX_WAIT=18000
           now=$(date -u +%s)
           target=$(date -u -d "$(date -u +%F) $TARGET_UTC" +%s)
-          diff=$((target - now))
+          base=$((target - now))
+
+          # 0~20 分钟的随机抖动，用来打散到达时刻；但**只能在预算有富余时生效**，
+          # 富余多少就用多少，绝不让总睡眠超过 MAX_WAIT —— 这是不超时的前提。
+          # （晚上正常路径 base 正好 18000，富余为 0，抖动自动退化为 0。）
+          jitter=$((RANDOM % 1201))
+          if [ "$base" -le 0 ]; then
+            # 已经到点、甚至已经迟到：别再叠随机了，少迟到一点是一点
+            jitter=0
+          fi
+          room=$((MAX_WAIT - base))
+          if [ "$room" -lt 0 ]; then room=0; fi
+          if [ "$jitter" -gt "$room" ]; then jitter="$room"; fi
+          diff=$((base + jitter))
+
           echo "本 job 开始于 UTC $(date -u '+%F %T')（北京 $(date -u -d '+8 hours' '+%F %T')）"
           if [ "$diff" -le 0 ]; then
             echo "已过北京 $TARGET_BJ，立即开跑（GitHub 派活晚了 $(( -diff / 60 )) 分钟）"
           elif [ "$diff" -gt "$MAX_WAIT" ]; then
             echo "⚠️ 距北京 $TARGET_BJ 还有 $((diff / 60)) 分钟，超过 $((MAX_WAIT / 60)) 分钟上限（多半是排队跨了 UTC 零点），不再等待，立即开跑"
           else
-            echo "等到北京 $TARGET_BJ 再开跑，还需 $((diff / 60)) 分 $((diff % 60)) 秒"
+            echo "等到北京 $TARGET_BJ 再开跑（含 $((jitter / 60)) 分随机），还需 $((diff / 60)) 分 $((diff % 60)) 秒"
             sleep "$diff"
-          fi
-
-      # 到点后再叠一个 0-20 分钟的随机延迟，让每天的消息到达时刻不固定成一个
-      # 「机器特征」。但**如果这次已经迟到**（过了目标时刻），就跳过随机、
-      # 立即开跑 —— 迟到时再抖 20 分钟纯属雪上加霜。
-      # 只对定时触发生效；手动触发（测试）不加，方便复现。
-      - name: Random 0-20 min delay (skipped if already late)
-        if: github.event_name == 'schedule'
-        run: |
-          if [ "${{ github.event.schedule }}" = "7 18 * * *" ]; then
-            TARGET_UTC="22:07"
-          else
-            TARGET_UTC="10:07"
-          fi
-          now=$(date -u +%s)
-          target=$(date -u -d "$(date -u +%F) $TARGET_UTC" +%s)
-          over=$((now - target))
-          if [ "$over" -gt 0 ]; then
-            echo "已经迟到 $((over / 60)) 分钟，跳过随机延迟，立即开跑"
-          else
-            j=$((RANDOM % 1201))
-            echo "随机延迟 $((j / 60)) 分 $((j % 60)) 秒后再开跑"
-            sleep "$j"
           fi
 
       - name: Run push script

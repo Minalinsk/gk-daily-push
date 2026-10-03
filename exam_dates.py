@@ -355,7 +355,16 @@ def save_store(store, path=None):
         seen.add(key)
         keep.append(ev)
     keep.sort(key=lambda e: (e["date"], e.get("kind", "")))
-    store["events"] = keep[-config.SCHEDULE_MAX:]
+    # ⚠️ 上限怎么取有讲究。keep 是按日期**升序**排的，原来的 keep[-SCHEDULE_MAX:]
+    #    取的是末尾 = **日期最远**的那批；一旦事件数超过上限，被丢掉的恰好是
+    #    最近要发生的事（最要命的那些）。改成：未来的全留（近的优先），
+    #    其次才是刚过去的（也是近的优先）。
+    today_iso = today.isoformat()
+    future = [e for e in keep if e["date"] >= today_iso]
+    past = sorted((e for e in keep if e["date"] < today_iso),
+                  key=lambda e: e["date"], reverse=True)
+    store["events"] = (future + past)[:config.SCHEDULE_MAX]
+    store["events"].sort(key=lambda e: (e["date"], e.get("kind", "")))
 
     # parsed 只留最近的记录，别让文件无限膨胀
     parsed = store.get("parsed", {})
@@ -698,9 +707,14 @@ def build_reminder(store):
                 dates.setdefault(kind, day)
         if not (set(dates) & set(KEY_KINDS)):
             continue                     # 只写了缴费/资格审查/公示的，不算考试公告
+        # 用 .get 而不是下标：events 是存在磁盘上、一轮轮累积的数据，
+        # 手工编辑过或来自更早版本时可能没有 title 字段，
+        # 不该让整条日程提醒因为一个字段缺失就崩掉。
+        head = evs[0]
+        title = head.get("title") or ""
         items.append({
-            "url": url, "title": evs[0]["title"], "short": _short(evs[0]["title"]),
-            "norm": _dedup_norm(evs[0]["title"]), "dates": dates,
+            "url": url, "title": title, "short": _short(title),
+            "norm": _dedup_norm(title), "dates": dates,
             "dkey": tuple(sorted((k, v) for k, v in dates.items() if k in KEY_KINDS)),
         })
 

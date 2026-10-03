@@ -36,10 +36,28 @@ def _post(webhook, payload, timeout=10):
 
 
 def _truncate(text, limit=MAX_BYTES):
+    """超长时**按行**截断，不是按字节切。
+
+    按字节切很危险：markdown 的 `[标题](https://…)` 被从中间切开之后，
+    企业微信那边渲染出来的是一串残破的链接文本。整行丢掉虽然也是损失，
+    但至少剩下的每一行都是完整可读的。
+    """
     raw = text.encode("utf-8")
     if len(raw) <= limit:
         return text
-    return raw[:limit].decode("utf-8", "ignore")
+
+    kept, used = [], 0
+    for line in text.split("\n"):
+        size = len(line.encode("utf-8")) + 1     # +1 是这一行的换行符
+        if used + size > limit:
+            break
+        kept.append(line)
+        used += size
+    if not kept:
+        # 极端情况：第一行自己就超长（比如一条超长 URL），退回硬切
+        return raw[:limit].decode("utf-8", "ignore")
+    kept.append("…（内容过长，其余已截断）")
+    return "\n".join(kept)
 
 
 def push(content, is_success=True, webhook=None, msg_type=None):
