@@ -1,136 +1,45 @@
 {
  "parsed": {
-  "https://sydw.huatu.com/2026/0920/2873481.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0920/2873480.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0918/2873450.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0918/2873422.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0917/2873303.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0917/2873286.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0917/2873259.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0916/2873197.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0916/2873154.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0915/2873090.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0915/2873101.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0915/2873097.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0915/2873085.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0915/2872977.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0915/2872976.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0915/2872975.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0915/2872974.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0915/2872973.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0915/2872971.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0915/2872970.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0915/2872969.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0914/2872935.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0911/2872836.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0909/2872622.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179741.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179740.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179739.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179738.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179736.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179735.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179726.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179725.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179724.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179630.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179723.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179624.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179722.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0920/1179721.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0918/1179560.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0917/1179415.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0917/1179403.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0916/1179295.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0915/1179013.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178626.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178815.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178866.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178719.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178882.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178881.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178871.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178796.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178784.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178787.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178791.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178756.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178746.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178652.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178658.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0914/1178623.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0909/2872694.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0901/1177019.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0831/1176756.html": "2026-09-20",
-  "https://www.offcn.com/sydw/2026/0831/1176632.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0831/2872016.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0920/2873560.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0828/2871977.html": "2026-09-20",
-  "https://sydw.huatu.com/2026/0828/2871972.html": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468599341600768": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468483387709440": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468619268477952": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468597919207424": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468598753873920": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468192033264640": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468344327655424": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468617116536833": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468873730348032": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468531392041984": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/469120409950208": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468571623283712": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468781267177472": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/469135761888256": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468917161581568": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/466123850534913": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/466846404858880": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/466891911221248": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/466745744970752": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/461480312456192": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/466281732786176": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/466222826672128": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/466220635408384": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468575240606720": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468372044405760": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/468345615306752": "2026-09-20",
-  "https://www.fenbi.com/page/exam-information-detail/467851588424704": "2026-09-20",
-  "https://sydw.huatu.com/2026/0921/2873776.html": "2026-09-21",
-  "https://sydw.huatu.com/2026/0921/2873707.html": "2026-09-21",
-  "https://sydw.huatu.com/2026/0921/2873645.html": "2026-09-21",
-  "https://sydw.huatu.com/2026/0921/2873728.html": "2026-09-21",
-  "https://sydw.huatu.com/2026/0921/2873727.html": "2026-09-21",
-  "https://sydw.huatu.com/2026/0921/2873726.html": "2026-09-21",
-  "https://sydw.huatu.com/2026/0922/2873805.html": "2026-09-22",
-  "https://sydw.huatu.com/2026/0922/2873794.html": "2026-09-22",
-  "https://sydw.huatu.com/2026/0922/2873915.html": "2026-09-22",
-  "https://sydw.huatu.com/2026/0922/2873882.html": "2026-09-22",
-  "https://sydw.huatu.com/2026/0922/2873881.html": "2026-09-22",
-  "https://sydw.huatu.com/2026/0921/2873781.html": "2026-09-22",
-  "https://sydw.huatu.com/2026/0921/2873689.html": "2026-09-22",
-  "https://sydw.huatu.com/2026/0923/2873961.html": "2026-09-23",
-  "https://sydw.huatu.com/2026/0923/2873948.html": "2026-09-23",
-  "https://sydw.huatu.com/2026/0923/2873944.html": "2026-09-23",
-  "https://sydw.huatu.com/2026/0923/2873980.html": "2026-09-23",
-  "https://sydw.huatu.com/2026/0923/2873974.html": "2026-09-23",
-  "https://sydw.huatu.com/2026/0923/2873968.html": "2026-09-23",
-  "https://sydw.huatu.com/2026/0923/2873950.html": "2026-09-23",
-  "https://sydw.huatu.com/2026/0923/2873949.html": "2026-09-23",
-  "https://sydw.huatu.com/2026/0928/2874139.html": "2026-09-28",
-  "https://sydw.huatu.com/2026/0928/2874144.html": "2026-09-28",
-  "https://www.fenbi.com/page/exam-information-detail/469276714884096": "2026-09-28",
-  "https://www.fenbi.com/page/exam-information-detail/469294696651776": "2026-09-28",
-  "https://www.fenbi.com/page/exam-information-detail/468986993072128": "2026-09-28",
-  "https://www.fenbi.com/page/exam-information-detail/468944155595776": "2026-09-28",
-  "https://www.fenbi.com/page/exam-information-detail/469164474781696": "2026-09-28",
-  "https://sydw.huatu.com/2026/0929/2874323.html": "2026-09-29",
-  "https://sydw.huatu.com/2026/0929/2874311.html": "2026-09-29",
-  "https://sydw.huatu.com/2026/0929/2874237.html": "2026-09-29",
-  "https://sydw.huatu.com/2026/0930/2874364.html": "2026-09-30",
-  "https://sydw.huatu.com/2026/0930/2874347.html": "2026-09-30",
-  "https://sydw.huatu.com/2026/0930/2874339.html": "2026-09-30",
-  "https://sydw.huatu.com/2026/0930/2874338.html": "2026-09-30",
-  "https://sydw.huatu.com/2026/0930/2874326.html": "2026-09-30",
-  "https://sydw.huatu.com/2026/0930/2874363.html": "2026-09-30"
+  "https://sydw.huatu.com/2026/0930/2874364.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0930/2874347.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0930/2874339.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0930/2874338.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0930/2874326.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0930/2874363.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0929/2874323.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0929/2874311.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0929/2874237.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0928/2874139.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0928/2874144.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0923/2873961.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0923/2873948.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0923/2873944.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0923/2873980.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0915/2873090.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0914/2872935.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0911/2872836.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0909/2872622.html": "2026-10-03",
+  "https://sydw.huatu.com/2026/0909/2872694.html": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/469276714884096": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/469294696651776": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/468986993072128": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/468944155595776": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/469164474781696": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/468873730348032": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/468531392041984": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/469120409950208": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/468571623283712": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/468781267177472": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/469135761888256": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/468917161581568": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/466123850534913": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/466846404858880": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/466891911221248": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/466745744970752": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/461480312456192": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/466281732786176": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/466222826672128": "2026-10-03",
+  "https://www.fenbi.com/page/exam-information-detail/466220635408384": "2026-10-03"
  },
  "events": [
   {
@@ -167,7 +76,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/468917161581568",
    "title": "深圳中学高中园2026年9月面向社会公开选聘教师公告",
    "source": "粉笔·招考公告",
-   "added": "2026-09-20"
+   "added": "2026-10-03"
   },
   {
    "kind": "资格审查截止",
@@ -185,7 +94,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/468917161581568",
    "title": "深圳中学高中园2026年9月面向社会公开选聘教师公告",
    "source": "粉笔·招考公告",
-   "added": "2026-09-20"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名开始",
@@ -194,7 +103,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/469294696651776",
    "title": "2026年度哈尔滨“丁香人才周”（秋季）事业单位引才招聘公告",
    "source": "粉笔·招考公告",
-   "added": "2026-09-28"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名截止",
@@ -244,15 +153,6 @@
   {
    "kind": "报名截止",
    "date": "2026-09-24",
-   "raw": "人 查看职位表 报名时间 2026/9/17 -2026/9/24 00:00 保定市宏利佳高",
-   "url": "https://www.fenbi.com/page/exam-information-detail/469135761888256",
-   "title": "保定市宏利佳高级中学招聘简章",
-   "source": "粉笔·招考公告",
-   "added": "2026-09-20"
-  },
-  {
-   "kind": "报名截止",
-   "date": "2026-09-24",
    "raw": "资格初审 (一)报名时间:2026年9月18日9时至9月24日18时。 (二)报名方式:现场报",
    "url": "https://www.offcn.com/sydw/2026/0920/1179736.html",
    "title": "招聘3人！工资8000+|海北州应急管理局公开招聘煤矿专职技术检查员公告",
@@ -289,20 +189,20 @@
   {
    "kind": "资格审查截止",
    "date": "2026-09-24",
-   "raw": "网上资格初审结果将于9月24日12:00前通过短信的方式告知应聘人员",
-   "url": "https://www.fenbi.com/page/exam-information-detail/468917161581568",
-   "title": "深圳中学高中园2026年9月面向社会公开选聘教师公告",
-   "source": "粉笔·招考公告",
-   "added": "2026-09-20"
-  },
-  {
-   "kind": "资格审查截止",
-   "date": "2026-09-24",
    "raw": "报名和资格初审 (一)报名时间:2026年9月18日9时至9月24日18时",
    "url": "https://www.offcn.com/sydw/2026/0920/1179736.html",
    "title": "招聘3人！工资8000+|海北州应急管理局公开招聘煤矿专职技术检查员公告",
    "source": "中公·全国事业单位",
    "added": "2026-09-20"
+  },
+  {
+   "kind": "资格审查截止",
+   "date": "2026-09-24",
+   "raw": "网上资格初审结果将于9月24日12:00前通过短信的方式告知应聘人员",
+   "url": "https://www.fenbi.com/page/exam-information-detail/468917161581568",
+   "title": "深圳中学高中园2026年9月面向社会公开选聘教师公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-10-03"
   },
   {
    "kind": "资格审查截止",
@@ -320,7 +220,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/468571623283712",
    "title": "2026年肇庆市高要区公办中小学公开招聘教育服务人员公告",
    "source": "粉笔·招考公告",
-   "added": "2026-09-20"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名开始",
@@ -329,7 +229,7 @@
    "url": "https://sydw.huatu.com/2026/0923/2873944.html",
    "title": "2026年北京市门头沟区教育系统公开招聘校长1人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-23"
+   "added": "2026-10-03"
   },
   {
    "kind": "笔试",
@@ -365,7 +265,7 @@
    "url": "https://sydw.huatu.com/2026/0923/2873948.html",
    "title": "2026年下半年北京市门头沟区卫生健康系统事业单位面向应届毕业生公开招聘卫生专业技术人员4人公",
    "source": "华图·全国事业单位",
-   "added": "2026-09-23"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名截止",
@@ -383,7 +283,7 @@
    "url": "https://sydw.huatu.com/2026/0930/2874339.html",
    "title": "2026年辽宁地质工程职业学院面向社会公开招聘工作人员27人公告（第二批）",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名开始",
@@ -392,7 +292,7 @@
    "url": "https://sydw.huatu.com/2026/0930/2874326.html",
    "title": "安徽日报报业集团（安徽日报社）2026年下半年公开招聘工作人员5人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名截止",
@@ -437,7 +337,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/469164474781696",
    "title": "广西壮族自治区交通运输厅直属事业单位2026年度自主招聘工作",
    "source": "粉笔·招考公告",
-   "added": "2026-09-28"
+   "added": "2026-10-03"
   },
   {
    "kind": "资格审查截止",
@@ -447,15 +347,6 @@
    "title": "2026年湖北省就业援藏面向西藏籍高校毕业生专项公开招聘事业单位工作人员28人公告",
    "source": "华图·全国事业单位",
    "added": "2026-09-21"
-  },
-  {
-   "kind": "资格审查截止",
-   "date": "2026-09-30",
-   "raw": "名未确认或未通过资格审查的，可在报名截止时间9月30日18:00前在网上改报其他岗位。网上审查",
-   "url": "https://www.fenbi.com/page/exam-information-detail/469164474781696",
-   "title": "广西壮族自治区交通运输厅直属事业单位2026年度自主招聘工作",
-   "source": "粉笔·招考公告",
-   "added": "2026-09-28"
   },
   {
    "kind": "面试",
@@ -473,7 +364,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/468917161581568",
    "title": "深圳中学高中园2026年9月面向社会公开选聘教师公告",
    "source": "粉笔·招考公告",
-   "added": "2026-09-20"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名截止",
@@ -572,7 +463,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/469164474781696",
    "title": "广西壮族自治区交通运输厅直属事业单位2026年度自主招聘工作",
    "source": "粉笔·招考公告",
-   "added": "2026-09-28"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名开始",
@@ -586,20 +477,20 @@
   {
    "kind": "报名开始",
    "date": "2026-10-09",
-   "raw": "(一) 个人报名 报名时间：2026年10月9日9:00-10月14日16:00 查询时间：2026年10月9日11:00-10月15日16:00 报名方式： ",
-   "url": "https://sydw.huatu.com/2026/0923/2873961.html",
-   "title": "2026年山东潍坊市坊子区事业单位公开招聘工作人员10人简章",
-   "source": "华图·全国事业单位",
-   "added": "2026-09-23"
-  },
-  {
-   "kind": "报名开始",
-   "date": "2026-10-09",
    "raw": "填写本人信息。 报名、照片上传时间： 2026年10月9日09:00-10月13日16:00",
    "url": "https://sydw.huatu.com/2026/0929/2874323.html",
    "title": "2026年江苏高邮市消防系统事业单位公开招聘工作人员3人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-29"
+   "added": "2026-10-03"
+  },
+  {
+   "kind": "报名开始",
+   "date": "2026-10-09",
+   "raw": "(一) 个人报名 报名时间：2026年10月9日9:00-10月14日16:00 查询时间：2026年10月9日11:00-10月15日16:00 报名方式： ",
+   "url": "https://sydw.huatu.com/2026/0923/2873961.html",
+   "title": "2026年山东潍坊市坊子区事业单位公开招聘工作人员10人简章",
+   "source": "华图·全国事业单位",
+   "added": "2026-10-03"
   },
   {
    "kind": "缴费截止",
@@ -617,7 +508,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/469164474781696",
    "title": "广西壮族自治区交通运输厅直属事业单位2026年度自主招聘工作",
    "source": "粉笔·招考公告",
-   "added": "2026-09-28"
+   "added": "2026-10-03"
   },
   {
    "kind": "准考证开始",
@@ -649,20 +540,20 @@
   {
    "kind": "报名开始",
    "date": "2026-10-10",
-   "raw": "报考程序 （一）报名 1.报名时间 2026年10月10日8:00至10月26日18:00",
-   "url": "https://www.fenbi.com/page/exam-information-detail/469276714884096",
-   "title": "中国地震局2027年度事业单位公开招聘公告",
-   "source": "粉笔·招考公告",
-   "added": "2026-09-28"
-  },
-  {
-   "kind": "报名开始",
-   "date": "2026-10-10",
    "raw": "报名时间：应聘人员请于2026年10月10日9:00至2026年10月16日16:00期间自行登录“汕头市濠江区农业农村和水务局下属事业单位2026年度公开招聘",
    "url": "https://sydw.huatu.com/2026/0929/2874311.html",
    "title": "2026年广东汕头市濠江区农业农村和水务局下属事业单位公开招聘工作人员5人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-29"
+   "added": "2026-10-03"
+  },
+  {
+   "kind": "报名开始",
+   "date": "2026-10-10",
+   "raw": "报考程序 （一）报名 1.报名时间 2026年10月10日8:00至10月26日18:00",
+   "url": "https://www.fenbi.com/page/exam-information-detail/469276714884096",
+   "title": "中国地震局2027年度事业单位公开招聘公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-10-03"
   },
   {
    "kind": "报名截止",
@@ -671,7 +562,7 @@
    "url": "https://sydw.huatu.com/2026/0923/2873948.html",
    "title": "2026年下半年北京市门头沟区卫生健康系统事业单位面向应届毕业生公开招聘卫生专业技术人员4人公",
    "source": "华图·全国事业单位",
-   "added": "2026-09-23"
+   "added": "2026-10-03"
   },
   {
    "kind": "资格审查截止",
@@ -725,16 +616,7 @@
    "url": "https://sydw.huatu.com/2026/0923/2873948.html",
    "title": "2026年下半年北京市门头沟区卫生健康系统事业单位面向应届毕业生公开招聘卫生专业技术人员4人公",
    "source": "华图·全国事业单位",
-   "added": "2026-09-23"
-  },
-  {
-   "kind": "报名开始",
-   "date": "2026-10-12",
-   "raw": "报名时间为：2026年10月12日至10月16日(上午9:00-12:00",
-   "url": "https://sydw.huatu.com/2026/0929/2874237.html",
-   "title": "2026年湖南邵阳市城步苗族自治县事业单位公开选调工作人员44人公告",
-   "source": "华图·全国事业单位",
-   "added": "2026-09-29"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名开始",
@@ -743,7 +625,16 @@
    "url": "https://sydw.huatu.com/2026/0930/2874347.html",
    "title": "2026年贵州遵义市桐梓县公开考调事业单位工作人员38人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
+  },
+  {
+   "kind": "报名开始",
+   "date": "2026-10-12",
+   "raw": "报名时间为：2026年10月12日至10月16日(上午9:00-12:00",
+   "url": "https://sydw.huatu.com/2026/0929/2874237.html",
+   "title": "2026年湖南邵阳市城步苗族自治县事业单位公开选调工作人员44人公告",
+   "source": "华图·全国事业单位",
+   "added": "2026-10-03"
   },
   {
    "kind": "面试",
@@ -770,7 +661,7 @@
    "url": "https://sydw.huatu.com/2026/0923/2873948.html",
    "title": "2026年下半年北京市门头沟区卫生健康系统事业单位面向应届毕业生公开招聘卫生专业技术人员4人公",
    "source": "华图·全国事业单位",
-   "added": "2026-09-23"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名截止",
@@ -788,25 +679,7 @@
    "url": "https://sydw.huatu.com/2026/0929/2874323.html",
    "title": "2026年江苏高邮市消防系统事业单位公开招聘工作人员3人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-29"
-  },
-  {
-   "kind": "资格审查截止",
-   "date": "2026-10-13",
-   "raw": "聘服务平台报名且资格初审通过的应聘人员，请于2026年10月12日(周一)上午9:00至10月13",
-   "url": "https://sydw.huatu.com/2026/0923/2873948.html",
-   "title": "2026年下半年北京市门头沟区卫生健康系统事业单位面向应届毕业生公开招聘卫生专业技术人员4人公",
-   "source": "华图·全国事业单位",
-   "added": "2026-09-23"
-  },
-  {
-   "kind": "资格审查截止",
-   "date": "2026-10-13",
-   "raw": "证;资格未初审或资格初审未通过的，在报名时间截止(10月13日16:00)前可以改报其他岗位或",
-   "url": "https://sydw.huatu.com/2026/0929/2874323.html",
-   "title": "2026年江苏高邮市消防系统事业单位公开招聘工作人员3人公告",
-   "source": "华图·全国事业单位",
-   "added": "2026-09-29"
+   "added": "2026-10-03"
   },
   {
    "kind": "准考证开始",
@@ -815,7 +688,7 @@
    "url": "https://sydw.huatu.com/2026/0909/2872622.html",
    "title": "2027内蒙古事业单位招聘工作人员8825人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-20"
+   "added": "2026-10-03"
   },
   {
    "kind": "准考证开始",
@@ -824,16 +697,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/468944155595776",
    "title": "2027年度内蒙古自治区事业单位公开招聘工作人员公告",
    "source": "粉笔·招考公告",
-   "added": "2026-09-28"
-  },
-  {
-   "kind": "报名截止",
-   "date": "2026-10-14",
-   "raw": "(一) 个人报名 报名时间：2026年10月9日9:00-10月14日16:00 查询时间：2026年10月9日11:00-10月15日16:00 报名方式： ",
-   "url": "https://sydw.huatu.com/2026/0923/2873961.html",
-   "title": "2026年山东潍坊市坊子区事业单位公开招聘工作人员10人简章",
-   "source": "华图·全国事业单位",
-   "added": "2026-09-23"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名截止",
@@ -842,7 +706,16 @@
    "url": "https://sydw.huatu.com/2026/0930/2874339.html",
    "title": "2026年辽宁地质工程职业学院面向社会公开招聘工作人员27人公告（第二批）",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
+  },
+  {
+   "kind": "报名截止",
+   "date": "2026-10-14",
+   "raw": "(一) 个人报名 报名时间：2026年10月9日9:00-10月14日16:00 查询时间：2026年10月9日11:00-10月15日16:00 报名方式： ",
+   "url": "https://sydw.huatu.com/2026/0923/2873961.html",
+   "title": "2026年山东潍坊市坊子区事业单位公开招聘工作人员10人简章",
+   "source": "华图·全国事业单位",
+   "added": "2026-10-03"
   },
   {
    "kind": "笔试",
@@ -851,7 +724,7 @@
    "url": "https://sydw.huatu.com/2026/0923/2873948.html",
    "title": "2026年下半年北京市门头沟区卫生健康系统事业单位面向应届毕业生公开招聘卫生专业技术人员4人公",
    "source": "华图·全国事业单位",
-   "added": "2026-09-23"
+   "added": "2026-10-03"
   },
   {
    "kind": "资格审查截止",
@@ -869,16 +742,16 @@
    "url": "https://sydw.huatu.com/2026/0929/2874323.html",
    "title": "2026年江苏高邮市消防系统事业单位公开招聘工作人员3人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-29"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名开始",
    "date": "2026-10-15",
-   "raw": "采取线上电子邮件报名。 (二)报名时间 2026年10月15日9:00至10月30日16:00",
+   "raw": "(二)报名时间 2026年10月15日9:00至10月30日16:00(工作日受理报名资格审查)",
    "url": "https://sydw.huatu.com/2026/0930/2874338.html",
    "title": "2026年吉林省社会科学院公开招聘高层次人才3人公告（2号）",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名截止",
@@ -896,7 +769,7 @@
    "url": "https://sydw.huatu.com/2026/0930/2874326.html",
    "title": "安徽日报报业集团（安徽日报社）2026年下半年公开招聘工作人员5人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
   },
   {
    "kind": "资格审查截止",
@@ -923,25 +796,7 @@
    "url": "https://sydw.huatu.com/2026/0923/2873961.html",
    "title": "2026年山东潍坊市坊子区事业单位公开招聘工作人员10人简章",
    "source": "华图·全国事业单位",
-   "added": "2026-09-23"
-  },
-  {
-   "kind": "报名截止",
-   "date": "2026-10-16",
-   "raw": "报名时间：应聘人员请于2026年10月10日9:00至2026年10月16日16:00期间自行登录“汕头市濠江区农业农村和水务局下属事业单位2026年度公开招聘",
-   "url": "https://sydw.huatu.com/2026/0929/2874311.html",
-   "title": "2026年广东汕头市濠江区农业农村和水务局下属事业单位公开招聘工作人员5人公告",
-   "source": "华图·全国事业单位",
-   "added": "2026-09-29"
-  },
-  {
-   "kind": "报名截止",
-   "date": "2026-10-16",
-   "raw": "报名时间为：2026年10月12日至10月16日(上午9:00-12:00",
-   "url": "https://sydw.huatu.com/2026/0929/2874237.html",
-   "title": "2026年湖南邵阳市城步苗族自治县事业单位公开选调工作人员44人公告",
-   "source": "华图·全国事业单位",
-   "added": "2026-09-29"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名截止",
@@ -950,16 +805,25 @@
    "url": "https://sydw.huatu.com/2026/0930/2874347.html",
    "title": "2026年贵州遵义市桐梓县公开考调事业单位工作人员38人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
   },
   {
-   "kind": "缴费截止",
+   "kind": "报名截止",
    "date": "2026-10-16",
-   "raw": "(三)网上缴费 缴费时间：2026年10月9日11:00-10月16日16:00 通过资格初审的人员",
-   "url": "https://sydw.huatu.com/2026/0923/2873961.html",
-   "title": "2026年山东潍坊市坊子区事业单位公开招聘工作人员10人简章",
+   "raw": "报名时间：应聘人员请于2026年10月10日9:00至2026年10月16日16:00期间自行登录“汕头市濠江区农业农村和水务局下属事业单位2026年度公开招聘",
+   "url": "https://sydw.huatu.com/2026/0929/2874311.html",
+   "title": "2026年广东汕头市濠江区农业农村和水务局下属事业单位公开招聘工作人员5人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-23"
+   "added": "2026-10-03"
+  },
+  {
+   "kind": "报名截止",
+   "date": "2026-10-16",
+   "raw": "报名时间为：2026年10月12日至10月16日(上午9:00-12:00",
+   "url": "https://sydw.huatu.com/2026/0929/2874237.html",
+   "title": "2026年湖南邵阳市城步苗族自治县事业单位公开选调工作人员44人公告",
+   "source": "华图·全国事业单位",
+   "added": "2026-10-03"
   },
   {
    "kind": "缴费截止",
@@ -968,7 +832,16 @@
    "url": "https://sydw.huatu.com/2026/0929/2874323.html",
    "title": "2026年江苏高邮市消防系统事业单位公开招聘工作人员3人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-29"
+   "added": "2026-10-03"
+  },
+  {
+   "kind": "缴费截止",
+   "date": "2026-10-16",
+   "raw": "(三)网上缴费 缴费时间：2026年10月9日11:00-10月16日16:00 通过资格初审的人员",
+   "url": "https://sydw.huatu.com/2026/0923/2873961.html",
+   "title": "2026年山东潍坊市坊子区事业单位公开招聘工作人员10人简章",
+   "source": "华图·全国事业单位",
+   "added": "2026-10-03"
   },
   {
    "kind": "资格审查截止",
@@ -982,20 +855,20 @@
   {
    "kind": "资格审查截止",
    "date": "2026-10-16",
-   "raw": "（六）网上改报岗位及资格审查 改报岗位及资格审查时间：2026年10月16日8:00至18:00",
-   "url": "https://www.fenbi.com/page/exam-information-detail/469164474781696",
-   "title": "广西壮族自治区交通运输厅直属事业单位2026年度自主招聘工作",
-   "source": "粉笔·招考公告",
-   "added": "2026-09-28"
-  },
-  {
-   "kind": "资格审查截止",
-   "date": "2026-10-16",
    "raw": "可于10月16日16:00前登录安徽省人力资源有限公司招聘报名平台查询是否通过资格审查",
    "url": "https://sydw.huatu.com/2026/0930/2874326.html",
    "title": "安徽日报报业集团（安徽日报社）2026年下半年公开招聘工作人员5人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
+  },
+  {
+   "kind": "资格审查截止",
+   "date": "2026-10-16",
+   "raw": "（六）网上改报岗位及资格审查 改报岗位及资格审查时间：2026年10月16日8:00至18:00",
+   "url": "https://www.fenbi.com/page/exam-information-detail/469164474781696",
+   "title": "广西壮族自治区交通运输厅直属事业单位2026年度自主招聘工作",
+   "source": "粉笔·招考公告",
+   "added": "2026-10-03"
   },
   {
    "kind": "准考证截止",
@@ -1013,7 +886,7 @@
    "url": "https://sydw.huatu.com/2026/0909/2872622.html",
    "title": "2027内蒙古事业单位招聘工作人员8825人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-20"
+   "added": "2026-10-03"
   },
   {
    "kind": "准考证截止",
@@ -1022,7 +895,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/468944155595776",
    "title": "2027年度内蒙古自治区事业单位公开招聘工作人员公告",
    "source": "粉笔·招考公告",
-   "added": "2026-09-28"
+   "added": "2026-10-03"
   },
   {
    "kind": "笔试",
@@ -1040,7 +913,7 @@
    "url": "https://sydw.huatu.com/2026/0909/2872622.html",
    "title": "2027内蒙古事业单位招聘工作人员8825人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-20"
+   "added": "2026-10-03"
   },
   {
    "kind": "笔试",
@@ -1049,7 +922,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/468944155595776",
    "title": "2027年度内蒙古自治区事业单位公开招聘工作人员公告",
    "source": "粉笔·招考公告",
-   "added": "2026-09-28"
+   "added": "2026-10-03"
   },
   {
    "kind": "面试",
@@ -1058,7 +931,7 @@
    "url": "https://sydw.huatu.com/2026/0930/2874363.html",
    "title": "2026年福建宁德市柘荣县纪委监委所属事业单位公开招聘工作人",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名截止",
@@ -1094,7 +967,7 @@
    "url": "https://sydw.huatu.com/2026/0911/2872836.html",
    "title": "关于调整2026年甘南州事业单位公开招聘工作人员笔试时间的公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-20"
+   "added": "2026-10-03"
   },
   {
    "kind": "准考证开始",
@@ -1117,15 +990,6 @@
   {
    "kind": "报名截止",
    "date": "2026-10-26",
-   "raw": "2026黑龙江 黑龙江人才周招聘2937人 报名时间：9月15至10月26日",
-   "url": "https://sydw.huatu.com/2026/0915/2873090.html",
-   "title": "2026黑龙江 黑龙江人才周招聘2937人 报名时间：9月15至10月26日",
-   "source": "华图·全国事业单位",
-   "added": "2026-09-20"
-  },
-  {
-   "kind": "报名截止",
-   "date": "2026-10-26",
    "raw": "2.报名时间：2026年9月15日09：00至2026年10月26日17：00",
    "url": "https://sydw.huatu.com/2026/0915/2873085.html",
    "title": "2026年黑龙江省林业科学院“黑龙江人才周”招聘工作人员89人公告",
@@ -1135,11 +999,20 @@
   {
    "kind": "报名截止",
    "date": "2026-10-26",
+   "raw": "2026黑龙江 黑龙江人才周招聘2937人 报名时间：9月15至10月26日",
+   "url": "https://sydw.huatu.com/2026/0915/2873090.html",
+   "title": "2026黑龙江 黑龙江人才周招聘2937人 报名时间：9月15至10月26日",
+   "source": "华图·全国事业单位",
+   "added": "2026-10-03"
+  },
+  {
+   "kind": "报名截止",
+   "date": "2026-10-26",
    "raw": "报考程序 （一）报名 1.报名时间 2026年10月10日8:00至10月26日18:00",
    "url": "https://www.fenbi.com/page/exam-information-detail/469276714884096",
    "title": "中国地震局2027年度事业单位公开招聘公告",
    "source": "粉笔·招考公告",
-   "added": "2026-09-28"
+   "added": "2026-10-03"
   },
   {
    "kind": "资格审查截止",
@@ -1157,7 +1030,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/469276714884096",
    "title": "中国地震局2027年度事业单位公开招聘公告",
    "source": "粉笔·招考公告",
-   "added": "2026-09-28"
+   "added": "2026-10-03"
   },
   {
    "kind": "准考证开始",
@@ -1184,7 +1057,7 @@
    "url": "https://sydw.huatu.com/2026/0929/2874323.html",
    "title": "2026年江苏高邮市消防系统事业单位公开招聘工作人员3人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-29"
+   "added": "2026-10-03"
   },
   {
    "kind": "准考证开始",
@@ -1193,7 +1066,7 @@
    "url": "https://sydw.huatu.com/2026/0930/2874326.html",
    "title": "安徽日报报业集团（安徽日报社）2026年下半年公开招聘工作人员5人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名截止",
@@ -1202,7 +1075,7 @@
    "url": "https://sydw.huatu.com/2026/0923/2873944.html",
    "title": "2026年北京市门头沟区教育系统公开招聘校长1人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-23"
+   "added": "2026-10-03"
   },
   {
    "kind": "准考证截止",
@@ -1220,16 +1093,25 @@
    "url": "https://sydw.huatu.com/2026/0930/2874326.html",
    "title": "安徽日报报业集团（安徽日报社）2026年下半年公开招聘工作人员5人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
+  },
+  {
+   "kind": "报名开始",
+   "date": "2026-10-30",
+   "raw": "报名和资格审查 从本公告发布之日起至2026年10月30日",
+   "url": "https://sydw.huatu.com/2026/0930/2874364.html",
+   "title": "2026年甘肃省文物局直属事业单位公开招聘博士研究生6人公告",
+   "source": "华图·全国事业单位",
+   "added": "2026-10-03"
   },
   {
    "kind": "报名截止",
    "date": "2026-10-30",
-   "raw": "采取线上电子邮件报名。 (二)报名时间 2026年10月15日9:00至10月30日16:00",
+   "raw": "(二)报名时间 2026年10月15日9:00至10月30日16:00(工作日受理报名资格审查)",
    "url": "https://sydw.huatu.com/2026/0930/2874338.html",
    "title": "2026年吉林省社会科学院公开招聘高层次人才3人公告（2号）",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
   },
   {
    "kind": "资格审查截止",
@@ -1238,7 +1120,7 @@
    "url": "https://sydw.huatu.com/2026/0930/2874364.html",
    "title": "2026年甘肃省文物局直属事业单位公开招聘博士研究生6人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
   },
   {
    "kind": "资格审查截止",
@@ -1247,16 +1129,7 @@
    "url": "https://sydw.huatu.com/2026/0930/2874338.html",
    "title": "2026年吉林省社会科学院公开招聘高层次人才3人公告（2号）",
    "source": "华图·全国事业单位",
-   "added": "2026-09-30"
-  },
-  {
-   "kind": "资格审查截止",
-   "date": "2026-10-30",
-   "raw": "过资格审查，通过资格审查的人员在10月29日8:30至10月30日18:00登录报名网站打印笔",
-   "url": "https://sydw.huatu.com/2026/0930/2874326.html",
-   "title": "安徽日报报业集团（安徽日报社）2026年下半年公开招聘工作人员5人公告",
-   "source": "华图·全国事业单位",
-   "added": "2026-09-30"
+   "added": "2026-10-03"
   },
   {
    "kind": "报名截止",
@@ -1283,7 +1156,7 @@
    "url": "https://sydw.huatu.com/2026/0929/2874323.html",
    "title": "2026年江苏高邮市消防系统事业单位公开招聘工作人员3人公告",
    "source": "华图·全国事业单位",
-   "added": "2026-09-29"
+   "added": "2026-10-03"
   },
   {
    "kind": "准考证开始",
@@ -1292,16 +1165,7 @@
    "url": "https://sydw.huatu.com/2026/0923/2873961.html",
    "title": "2026年山东潍坊市坊子区事业单位公开招聘工作人员10人简章",
    "source": "华图·全国事业单位",
-   "added": "2026-09-23"
-  },
-  {
-   "kind": "缴费截止",
-   "date": "2026-11-02",
-   "raw": "缴费，逾期不办理网上缴费手续的，视为放弃。报名成功后，不再退费。缴费成功人员于2026年11月2",
-   "url": "https://sydw.huatu.com/2026/0923/2873961.html",
-   "title": "2026年山东潍坊市坊子区事业单位公开招聘工作人员10人简章",
-   "source": "华图·全国事业单位",
-   "added": "2026-09-23"
+   "added": "2026-10-03"
   },
   {
    "kind": "准考证开始",
@@ -1310,7 +1174,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/469276714884096",
    "title": "中国地震局2027年度事业单位公开招聘公告",
    "source": "粉笔·招考公告",
-   "added": "2026-09-28"
+   "added": "2026-10-03"
   },
   {
    "kind": "准考证截止",
@@ -1319,16 +1183,7 @@
    "url": "https://sydw.huatu.com/2026/0923/2873961.html",
    "title": "2026年山东潍坊市坊子区事业单位公开招聘工作人员10人简章",
    "source": "华图·全国事业单位",
-   "added": "2026-09-23"
-  },
-  {
-   "kind": "笔试",
-   "date": "2026-11-07",
-   "raw": "40号)办理。 笔试时间：2026年11月7日8:30—12:00 8:30—10:00 职业",
-   "url": "https://sydw.huatu.com/2026/0923/2873961.html",
-   "title": "2026年山东潍坊市坊子区事业单位公开招聘工作人员10人简章",
-   "source": "华图·全国事业单位",
-   "added": "2026-09-23"
+   "added": "2026-10-03"
   },
   {
    "kind": "资格审查截止",
@@ -1337,7 +1192,7 @@
    "url": "https://sydw.huatu.com/2026/0923/2873961.html",
    "title": "2026年山东潍坊市坊子区事业单位公开招聘工作人员10人简章",
    "source": "华图·全国事业单位",
-   "added": "2026-09-23"
+   "added": "2026-10-03"
   },
   {
    "kind": "准考证截止",
@@ -1346,16 +1201,7 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/469276714884096",
    "title": "中国地震局2027年度事业单位公开招聘公告",
    "source": "粉笔·招考公告",
-   "added": "2026-09-28"
-  },
-  {
-   "kind": "资格审查截止",
-   "date": "2026-11-13",
-   "raw": "打印准考证 通过资格审查的考生可于2026年11月4日8:00至11月13日18:00期间登录",
-   "url": "https://www.fenbi.com/page/exam-information-detail/469276714884096",
-   "title": "中国地震局2027年度事业单位公开招聘公告",
-   "source": "粉笔·招考公告",
-   "added": "2026-09-28"
+   "added": "2026-10-03"
   },
   {
    "kind": "笔试",
@@ -1364,7 +1210,8 @@
    "url": "https://www.fenbi.com/page/exam-information-detail/469276714884096",
    "title": "中国地震局2027年度事业单位公开招聘公告",
    "source": "粉笔·招考公告",
-   "added": "2026-09-28"
+   "added": "2026-10-03"
   }
- ]
+ ],
+ "parser": 2
 }
