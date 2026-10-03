@@ -242,7 +242,7 @@ NEWS_FALLBACK_MAX = 3   # 兜底时每个源最多取几条
 # 不想要就改成 False。
 TOPIC_TAGS = True
 
-# 每天跑一次，看的是「前一天」（凌晨/清早运行时，当天还几乎没有稿子）。
+# 每天跑一次，看的是「前一天」（凌晨运行时，当天还几乎没有稿子）。
 # workflow 里按 cron 直接把 NEWS_DAY 设成 "yesterday"（见 daily.yml），
 # 而不是靠"现在几点"去猜 —— 排队晚点可能跨过中午 12 点，靠猜会把内容切错。
 # 手动触发时给的是 "auto"，才走下面这条按北京时间猜的兜底逻辑。
@@ -250,13 +250,6 @@ TOPIC_TAGS = True
 NEWS_WINDOW_AUTO = True
 NEWS_EVENING_HOUR = 12          # 北京时间过了 12 点，就认为这次要看"当天"
 NEWS_DAY = os.getenv("NEWS_DAY") or ""
-
-# 「每日时政」这条要等到北京时间的几点再发（HH:MM）。
-# 一次运行会推两条消息：「⏰ 考试日程提醒」先发，时政再等到这个点发 ——
-# 两条错开，不会同时炸出来。
-# 留空 = 不等，抓完就发（本地 simulate.py 用这个行为，免得预览还要等）。
-# workflow 里通过 NEWS_AT_BJ 传进来，和 push job 里那段等待是配套的，改要一起改。
-NEWS_AT_BJ = os.getenv("NEWS_AT_BJ") or ""
 
 # 首次运行（本地还没索引）时：True = 照常推送，可能一次推一大串
 #                          False = 只建索引不推送，避免被刷屏
