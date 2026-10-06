@@ -1,5 +1,5 @@
 {
- "last_run": "2026-10-05 05:58:10",
+ "last_run": "2026-10-06 08:30:05",
  "seen": [
   "https://ha.huatu.com/2026/0814/6808585.html",
   "https://ha.huatu.com/2026/0813/6808302.html",
@@ -907,24 +907,48 @@
   "https://www.chinanews.com.cn/cj/2026/10-04/10707804.shtml",
   "https://www.chinanews.com.cn/cj/2026/10-04/10707968.shtml",
   "https://www.chinanews.com.cn/ty/2026/10-04/10707889.shtml",
-  "https://www.chinanews.com.cn/ty/2026/10-04/10707890.shtml"
+  "https://www.chinanews.com.cn/ty/2026/10-04/10707890.shtml",
+  "https://www.qstheory.cn/20261005/4e01b3a020774d49bd3f413f7e5bacd0/c.html",
+  "https://www.qstheory.cn/20261005/99e0d7fd9aa74db286e3685c8fb5e7e2/c.html",
+  "https://www.qstheory.cn/20261005/d7a6c6db2c14467dad35121a88b5b90a/c.html",
+  "https://www.qstheory.cn/20261005/5c73cd3e1b114891979470b9181723f2/c.html",
+  "https://www.qstheory.cn/20261005/01879ab985d542c683b11e96a0925846/c.html",
+  "https://www.qstheory.cn/20261005/c0c34d9878e845618683f187edea0d7a/c.html",
+  "https://www.qstheory.cn/20261005/6a037253f7014561969b034234e2fd09/c.html",
+  "https://www.qstheory.cn/20261005/61533bdb1adb41b2b364c542951b7e04/c.html",
+  "https://news.cctv.com/2026/10/06/ARTIYsueGZseo3LVFTsDCbGp261006.shtml",
+  "https://news.cctv.com/2026/10/06/ARTILffV8hf2NkdEGLLHyJ5x261006.shtml",
+  "https://news.cctv.com/2026/10/06/ARTIT9vDDd2jxiuXoo6VzA1M261006.shtml",
+  "http://opinion.people.com.cn/n1/2026/1005/c436867-40809613.html",
+  "https://www.chinanews.com.cn/gn/2026/10-05/10708134.shtml",
+  "https://www.chinanews.com.cn/gn/2026/10-05/10708242.shtml",
+  "https://www.chinanews.com.cn/cj/2026/10-05/10708180.shtml",
+  "https://www.chinanews.com.cn/gn/2026/10-05/10708202.shtml",
+  "https://www.chinanews.com.cn/gn/2026/10-05/10708066.shtml",
+  "https://www.chinanews.com.cn/sh/2026/10-05/10708249.shtml",
+  "https://www.chinanews.com.cn/fz/2026/10-05/10708209.shtml",
+  "https://www.chinanews.com.cn/cj/2026/10-05/10708105.shtml",
+  "https://www.chinanews.com.cn/sh/2026/10-05/10708108.shtml",
+  "https://www.chinanews.com.cn/gj/2026/10-05/10708170.shtml",
+  "https://www.chinanews.com.cn/gj/2026/10-05/10708203.shtml",
+  "https://www.chinanews.com.cn/gj/2026/10-05/10708072.shtml"
  ],
- "last_schedule": "2026-10-05",
+ "last_schedule": "2026-10-06",
  "source_health": {
   "山西省考·公务员": {
-   "count": 3,
+   "count": 4,
    "reason": "抓取失败：请求失败：https://rst.shanxi.gov.cn/rsks/gwyks/ -> URLError: <urlopen error timed out>",
-   "last": "2026-10-05"
+   "last": "2026-10-06"
   },
   "山西省考·事业单位": {
-   "count": 3,
+   "count": 4,
    "reason": "抓取失败：请求失败：https://rst.shanxi.gov.cn/rsks/sydwks/ -> URLError: <urlopen error timed out>",
-   "last": "2026-10-05"
+   "last": "2026-10-06"
   },
   "中公·全国事业单位": {
-   "count": 3,
+   "count": 4,
    "reason": "抓取失败：请求失败：https://www.offcn.com/sydw/ -> HTTPError: HTTP Error 403: Forbidden",
-   "last": "2026-10-05"
+   "last": "2026-10-06"
   }
  }
 }
