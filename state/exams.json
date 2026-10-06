@@ -53,7 +53,9 @@
   "https://www.fenbi.com/page/exam-information-detail/469477728476160": "2026-10-04",
   "https://www.fenbi.com/page/exam-information-detail/469477727951872": "2026-10-04",
   "https://www.fenbi.com/page/exam-information-detail/469527570960385": "2026-10-05",
-  "https://www.fenbi.com/page/exam-information-detail/469523025645569": "2026-10-05"
+  "https://www.fenbi.com/page/exam-information-detail/469523025645569": "2026-10-05",
+  "https://www.fenbi.com/page/exam-information-detail/469465353444352": "2026-10-07",
+  "https://www.fenbi.com/page/exam-information-detail/469573986703360": "2026-10-07"
  },
  "events": [
   {
@@ -211,6 +213,15 @@
   },
   {
    "kind": "报名开始",
+   "date": "2026-10-01",
+   "raw": "人 查看职位表 报名时间 2026/10/1 -2026/10/8 00:00 招聘对象为符合",
+   "url": "https://www.fenbi.com/page/exam-information-detail/469465353444352",
+   "title": "即将截止2026年10月1日（星期四）最新招聘信息珠海高新区招聘事业编制教师40名",
+   "source": "粉笔·招考公告",
+   "added": "2026-10-07"
+  },
+  {
+   "kind": "报名开始",
    "date": "2026-10-02",
    "raw": "位 查看职位表 报名时间 2026/10/2 -2026/10/16 7福田区竹林中心幼儿园 ",
    "url": "https://www.fenbi.com/page/exam-information-detail/469483389475841",
@@ -280,6 +291,15 @@
    "title": "深圳中学高中园2026年9月面向社会公开选聘教师公告",
    "source": "粉笔·招考公告",
    "added": "2026-10-03"
+  },
+  {
+   "kind": "报名开始",
+   "date": "2026-10-06",
+   "raw": "人 查看职位表 报名时间 2026/10/6 16:04-2026/10/13 16:04",
+   "url": "https://www.fenbi.com/page/exam-information-detail/469573986703360",
+   "title": "正在报名佛山市顺德区北滘镇莘村初级中学招聘饭堂工作人员公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-10-07"
   },
   {
    "kind": "报名截止",
@@ -361,6 +381,15 @@
    "title": "正在报名佛山市第一中学教辅人员招聘公告",
    "source": "粉笔·招考公告",
    "added": "2026-10-05"
+  },
+  {
+   "kind": "报名截止",
+   "date": "2026-10-08",
+   "raw": "人 查看职位表 报名时间 2026/10/1 -2026/10/8 00:00 招聘对象为符合",
+   "url": "https://www.fenbi.com/page/exam-information-detail/469465353444352",
+   "title": "即将截止2026年10月1日（星期四）最新招聘信息珠海高新区招聘事业编制教师40名",
+   "source": "粉笔·招考公告",
+   "added": "2026-10-07"
   },
   {
    "kind": "缴费截止",
@@ -649,6 +678,15 @@
    "title": "2026年江苏高邮市消防系统事业单位公开招聘工作人员3人公告",
    "source": "华图·全国事业单位",
    "added": "2026-10-03"
+  },
+  {
+   "kind": "报名截止",
+   "date": "2026-10-13",
+   "raw": "人 查看职位表 报名时间 2026/10/6 16:04-2026/10/13 16:04",
+   "url": "https://www.fenbi.com/page/exam-information-detail/469573986703360",
+   "title": "正在报名佛山市顺德区北滘镇莘村初级中学招聘饭堂工作人员公告",
+   "source": "粉笔·招考公告",
+   "added": "2026-10-07"
   },
   {
    "kind": "准考证开始",
