@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""每日时政 + 公考公告推送 —— 主程序
+"""每日时政推送 —— 主程序
 
-两条消息、两套逻辑：
-  ① 考试日程提醒 —— 公告源里的"报名/考试时间"，做成一张时间表（公告维度，累积着用）
-  ② 每日资讯清单 —— 时政源里前一天的热门时政
+一条消息：时政源里前一天的热门时政。
 流程：抓取 → 去重 → 组装消息 → 企业微信推送 → 更新索引
+消息超长会自动拆成多条，内容一条不丢。
 任何环节出错都会推一条失败通知，不会静默死掉。
 """
 
@@ -15,7 +14,6 @@ import time
 import traceback
 
 import config
-import exam_dates
 import topics
 from fetcher import fetch_all, url_date
 from log_utils import setup_logging, tail_logs
@@ -30,6 +28,10 @@ BJ_OFFSET = 8 * 3600   # 服务器跑在 UTC，消息里统一显示北京时间
 def bj_now():
     return time.gmtime(time.time() + BJ_OFFSET)
 
+
+def bj_today():
+    """北京时间的今天（服务器跑在 UTC，直接用 time.gmtime 会差 8 小时）。"""
+    return datetime.date(*time.gmtime(time.time() + BJ_OFFSET)[:3])
 
 
 def _clean_title(title):
@@ -51,17 +53,11 @@ def _keep(title):
     return True
 
 
-def eligible_by_source(all_items, seen_set, kind=None):
-    """过滤 + 去重，把候选按源分组。返回 {源: [条目...]}，保持页面出现顺序。
-
-    kind 用来只取某一类源："news"=时政源（进每日清单），
-    "announce"=公告源（走日程提醒那条线，不进清单）。
-    """
+def eligible_by_source(all_items, seen_set):
+    """过滤 + 去重，把候选按源分组。返回 {源: [条目...]}，保持页面出现顺序。"""
     by_source, used_url, used_title = {}, set(), set()
 
     for it in all_items:
-        if kind and it.get("kind") != kind:
-            continue
         title, url = it["title"], it["url"]
         if url in seen_set or url in used_url:
             continue
@@ -98,7 +94,7 @@ def _news_target_day():
     config.NEWS_DAY 设了 "today"/"yesterday" 就按它来 —— workflow 的定时那次固定给
     "yesterday"；手动触发给 "auto"，才走下面这条按北京时间猜的兜底逻辑。
     """
-    today = exam_dates.bj_today()
+    today = bj_today()
     if config.NEWS_DAY == "today":
         return today
     if config.NEWS_DAY == "yesterday":
@@ -110,16 +106,16 @@ def _news_target_day():
 
 def _news_day_label():
     """「今天」还是「前一天」——只用来写日志和空消息文案。"""
-    return "今天" if _news_target_day() == exam_dates.bj_today() else "前一天"
+    return "今天" if _news_target_day() == bj_today() else "前一天"
 
 
 def pick_news(all_items, seen_set):
-    """每日资讯清单：只挑时政源里目标那一天的条目（正常就是前一天）。
+    """每日资讯清单：只按时政源里目标那一天挑条目（正常就是前一天）。
 
     某个源那一天没更新（一条都挑不出来）时，退而取它最新的几条，
-    免得整个源缺席。**公告不在这条清单里**——公告统一走日程提醒。
+    免得整个源缺席。
     """
-    by_source = eligible_by_source(all_items, seen_set, kind="news")
+    by_source = eligible_by_source(all_items, seen_set)
     target = _news_target_day()
 
     queues = []
@@ -268,64 +264,6 @@ def _send(text, is_success=True, tag="消息"):
     return safe_push(text, is_success=is_success)
 
 
-def _schedule_step(all_items, state, send=True):
-    """抓公告正文、抽关键时间点，然后推一条「考试日程提醒」。
-
-    **一天只提醒一遍**，规矩是两条：
-      ① 发过就不再发：state["last_schedule"] 记着上次发的是哪一天（北京时间），
-         同一天再跑（手动触发、重跑）都会跳过；
-      ② 平时只有定时那次负责发（send=True）；万一整天都没发出去，
-         下一次运行（send=False）会补一条 —— 总比当天完全没有提醒好。
-    这一块独立于"只推新的"逻辑：日历是累积的，今天没有新公告也会照常提醒。
-    出错不影响主流程。
-    """
-    if not config.SCHEDULE_ENABLED:
-        return
-    try:
-        store = exam_dates.load_store()
-        n = exam_dates.update_calendar(all_items, store)
-        # ⚠️ DRY_RUN 时不能写盘：exams.json 也是"状态"，写下去会让工作区变脏，
-        #    而 workflow 里那步 Commit state 是 if: always()，
-        #    干跑一次就会平白多出一条"更新已推送索引"的提交。
-        #    （日历只在内存里更新，所以下面的提醒文案照样是完整的）
-        if config.DRY_RUN:
-            logging.info("（DRY_RUN）考试日历本应保存 %d 个时间点，已跳过写盘",
-                         len(store.get("events", [])))
-        else:
-            exam_dates.save_store(store)
-        if n:
-            logging.info("本次新解析了 %d 篇公告的日程", n)
-
-        today = exam_dates.bj_today().isoformat()
-        if state.get("last_schedule") == today:
-            logging.info("今天的日程提醒已经发过了，本次跳过（日历照常更新）")
-            return
-        if not send:
-            logging.info("今天还没发过日程提醒，本次补发一条")
-
-        msgs = exam_dates.build_reminders(store)
-        if not msgs:
-            logging.info("日历里还没有写明了时间的考试公告")
-            return
-        # 超长会拆成多条，逐条发。任何一条失败就停在那儿、本次不记账 ——
-        # 下次运行会**整体重发**，不会出现"只发出去半截"的状态。
-        ok = True
-        for i, body in enumerate(msgs, 1):
-            tag = "日程提醒" if len(msgs) == 1 else "日程提醒%d/%d" % (i, len(msgs))
-            if not _send(body, is_success=True, tag=tag):
-                ok = False
-                logging.warning("日程提醒第 %d/%d 条发送失败，本次不记账，下次整体重发",
-                                i, len(msgs))
-                break
-        if ok and not config.DRY_RUN:
-            # 只有真发出去了才记账：发送失败的话，下一轮会补发
-            state["last_schedule"] = today
-            logging.info("日程提醒已发出（%d 条消息），今天不再重复提醒", len(msgs))
-    except Exception as exc:
-        logging.error("考试日程模块出错（已忽略）：%s", exc)
-        logging.error("堆栈：\n%s", traceback.format_exc())
-
-
 def main():
     setup_logging()
     logging.info("=" * 46)
@@ -358,7 +296,7 @@ def main():
         # 以前源失败只在日志里留一行，于是"山西两个源全挂、中公一直 403"这种
         # 持续好几天的故障，谁都没发现（日志是没人天天翻的）。
         # 现在把"连续失败"记进 state，连续 2 天以上就写进推送消息里。
-        today_str = exam_dates.bj_today().isoformat()
+        today_str = bj_today().isoformat()
         health = state.setdefault("source_health", {})
         for name in list(health):
             if name not in failures:
@@ -381,16 +319,12 @@ def main():
         new_items = pick_news(all_items, seen_set)
         logging.info("时政里没推过的 %d 条（看的是 %s）", len(new_items), _news_day_label())
 
-        # 先推日程提醒（公告的时间表，一天只推一条），再推时政清单
-        _schedule_step(all_items, state, send=config.PUSH_SCHEDULE)
-
         # 首次运行只建索引，避免一口气把几百条糊你脸上
         if first_run and not config.FIRST_RUN_PUSH:
             # 注意：这里记的是"全部时政候选"，不是挑出来的那几条。
             # 如果只记 24 条，剩下的会在之后十来天里被当成"新内容"
             # 陆续推出来，等于给你补一星期旧闻。
-            # （公告不进这个索引：它靠日历的 parsed 表去重，见 exam_dates.py）
-            all_new = [it for queue in eligible_by_source(all_items, seen_set, kind="news").values()
+            all_new = [it for queue in eligible_by_source(all_items, seen_set).values()
                        for it in queue]
             if config.DRY_RUN:
                 logging.info("（DRY_RUN）首次运行，本应建立索引 %d 条，已跳过", len(all_new))
